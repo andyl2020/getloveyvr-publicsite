@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="logoTitle logoDesc">
+  <title id="logoTitle">GetLoveYVR logo</title>
+  <desc id="logoDesc">A heart outline containing a mountain and suspension bridge inside an olive green circle.</desc>
+  <defs>
+    <clipPath id="logoClip">
+      <circle cx="256" cy="256" r="224" />
+    </clipPath>
+  </defs>
+  <circle cx="256" cy="256" r="224" fill="#60763d" />
+  <g clip-path="url(#logoClip)" fill="none" stroke="#efe8d8" stroke-linecap="round" stroke-linejoin="round" stroke-width="10">
+    <path d="M256 390C219 355 186 329 156 305C108 267 99 192 139 153C179 114 230 124 256 171C282 124 333 114 373 153C413 192 404 267 356 305C326 329 293 355 256 390" />
+    <path d="M62 296C101 296 123 287 144 265C155 254 165 240 177 223" />
+    <path d="M167 283L193 235L219 276L238 261" />
+    <path d="M180 289C233 284 280 284 334 289C361 291 388 293 424 294" />
+    <path d="M240 290C264 279 282 262 302 234" />
+    <path d="M306 236V347" />
+    <path d="M281 236H350" />
+    <path d="M305 236C328 253 351 274 380 294" />
+    <path d="M338 249V293" />
+  </g>
+</svg>

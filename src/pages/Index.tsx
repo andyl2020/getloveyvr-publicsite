@@ -1,5 +1,4 @@
 import { useState } from "react";
-import logo from "@/assets/logo.png";
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
@@ -19,6 +18,7 @@ const TikTokIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const logo = `${import.meta.env.BASE_URL}logo-mark.svg`;
 const FLOCK_URL = "https://flocksocial.app/flocks/57c9a846-3663-4bec-85b8-60c01cd5e322";
 
 interface EventInfo {
