@@ -19,8 +19,7 @@ const TikTokIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const FLOCK_URL =
-  "https://flocksocial.app/flocs/57c9a846-3663-4bec-85b8-60c01cd5e322?utm_source=ig&utm_medium=social&utm_content=link_in_bio";
+const FLOCK_URL = "https://flocksocial.app/flocks/57c9a846-3663-4bec-85b8-60c01cd5e322";
 
 interface EventInfo {
   seriesNumber: number;
@@ -88,11 +87,9 @@ function getEventLabel(event: EventInfo) {
 const EventCalendar = () => {
   const [currentMonth, setCurrentMonth] = useState(3);
   const [currentYear, setCurrentYear] = useState(2026);
-  const [selectedEvent, setSelectedEvent] = useState<EventInfo | null>(null);
 
   const days = getCalendarDays(currentMonth, currentYear);
   const monthEvents = events.filter((event) => event.month === currentMonth && event.year === currentYear);
-  const showMonthList = !selectedEvent || selectedEvent.month !== currentMonth || selectedEvent.year !== currentYear;
 
   const prevMonth = () => {
     if (currentMonth === 0) {
@@ -151,21 +148,13 @@ const EventCalendar = () => {
           }
 
           const event = getEventForDay(day, currentMonth, currentYear);
-          const isSelected =
-            selectedEvent &&
-            selectedEvent.date === day &&
-            selectedEvent.month === currentMonth &&
-            selectedEvent.year === currentYear;
 
           return (
-            <button
+            <div
               key={day}
-              type="button"
-              onClick={() => event && setSelectedEvent(isSelected ? null : event)}
               className={[
-                "relative aspect-square flex flex-col items-center justify-center rounded-lg text-sm transition-all",
-                event ? "cursor-pointer font-semibold ring-2 ring-primary/30 hover:ring-primary/60 hover:scale-105" : "cursor-default",
-                isSelected ? "ring-2 ring-primary scale-105 bg-primary/10" : "",
+                "relative aspect-square flex flex-col items-center justify-center rounded-lg text-sm",
+                event ? "font-semibold ring-2 ring-primary/30 bg-primary/5" : "",
                 !event ? "text-muted-foreground" : "",
               ]
                 .filter(Boolean)
@@ -173,51 +162,19 @@ const EventCalendar = () => {
             >
               <span>{day}</span>
               {event && <span className="text-base leading-none mt-0.5">{event.emoji}</span>}
-            </button>
+            </div>
           );
         })}
       </div>
 
-      {selectedEvent && selectedEvent.month === currentMonth && selectedEvent.year === currentYear && (
-        <div className="mt-6 p-4 rounded-xl bg-card border animate-fade-in">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-3xl">{selectedEvent.emoji}</span>
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                  {getEventLabel(selectedEvent)}
-                </p>
-                <p className="font-heading font-semibold text-lg">{selectedEvent.title}</p>
-                <p className="text-sm text-muted-foreground">
-                  {MONTHS[selectedEvent.month]} {selectedEvent.date}, {selectedEvent.year}
-                  {selectedEvent.tentative && (
-                    <span className="ml-2 text-xs bg-secondary px-2 py-0.5 rounded-full">Tentative</span>
-                  )}
-                </p>
-              </div>
-            </div>
-            <Button size="sm" asChild className="sm:self-start">
-              <a href={FLOCK_URL} target="_blank" rel="noopener noreferrer">
-                Join
-                <ExternalLink className="w-4 h-4 ml-2" />
-              </a>
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {monthEvents.length > 0 && showMonthList && (
+      {monthEvents.length > 0 && (
         <div className="mt-6 space-y-2">
           {monthEvents.map((event) => (
             <div
               key={`${event.month}-${event.date}`}
               className="flex items-center gap-3 p-3 rounded-xl bg-card border hover:border-primary/40 transition-colors"
             >
-              <button
-                type="button"
-                onClick={() => setSelectedEvent(event)}
-                className="flex flex-1 items-center gap-3 text-left"
-              >
+              <div className="flex flex-1 items-center gap-3 text-left">
                 <span className="text-2xl">{event.emoji}</span>
                 <div className="flex-1">
                   <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
@@ -226,10 +183,10 @@ const EventCalendar = () => {
                   <p className="font-heading font-medium">{event.title}</p>
                   <p className="text-xs text-muted-foreground">
                     {MONTHS[event.month]} {event.date}
-                    {event.tentative && " · Tentative"}
+                    {event.tentative && " - Tentative"}
                   </p>
                 </div>
-              </button>
+              </div>
               <Button size="sm" variant="outline" asChild>
                 <a href={FLOCK_URL} target="_blank" rel="noopener noreferrer">
                   Join
@@ -290,9 +247,9 @@ const Index = () => {
         <div className="container max-w-3xl mx-auto text-center">
           <img src={logo} alt="GetLoveYVR heart logo" className="w-24 h-24 mx-auto mb-6" loading="eager" />
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold tracking-tight mb-4">
-            Making modern dating
+            Meet your person
             <br />
-            fun again 💖
+            in real life.
           </h1>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto mb-8">
             8 events. 10 weeks. Will you find love?
@@ -355,7 +312,7 @@ const Index = () => {
         <div className="container max-w-4xl mx-auto">
           <h2 className="text-3xl sm:text-4xl font-heading font-bold text-center mb-4">Upcoming Events</h2>
           <p className="text-center text-muted-foreground mb-12 max-w-md mx-auto">
-            Tap on a date to see event details. New events added regularly!
+            Browse the month and use Join when an event feels like your kind of night.
           </p>
           <EventCalendar />
         </div>
@@ -363,7 +320,7 @@ const Index = () => {
 
       <section id="join" className="py-20 px-4 bg-primary text-primary-foreground">
         <div className="container max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-4xl font-heading font-bold mb-4">Ready to find love? 💕</h2>
+          <h2 className="text-3xl sm:text-4xl font-heading font-bold mb-4">Ready to find love?</h2>
           <p className="text-lg opacity-90 mb-8 max-w-md mx-auto">
             Join our community on Flock Social to get event updates, meet other singles, and RSVP.
           </p>
