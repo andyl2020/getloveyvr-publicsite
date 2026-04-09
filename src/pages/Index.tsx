@@ -396,6 +396,23 @@ const Index = () => {
         </div>
       </section>
 
+      <section id="contact" className="px-4 pb-10">
+        <div className="container max-w-3xl mx-auto">
+          <div className="rounded-full border border-border/70 bg-background/80 px-5 py-3 text-center text-sm text-muted-foreground shadow-sm">
+            Want to reach me directly?{" "}
+            <a
+              href="https://www.instagram.com/aluu.me"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-foreground underline decoration-primary/40 underline-offset-4 transition-colors hover:text-primary"
+            >
+              Contact me on Instagram
+            </a>
+            .
+          </div>
+        </div>
+      </section>
+
       <footer className="py-8 px-4 border-t">
         <div className="container max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
