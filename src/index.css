@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 45 33% 96%;
+    --foreground: 150 10% 15%;
+
+    --card: 45 30% 98%;
+    --card-foreground: 150 10% 15%;
+
+    --popover: 45 30% 98%;
+    --popover-foreground: 150 10% 15%;
+
+    --primary: 83 32% 35%;
+    --primary-foreground: 45 33% 96%;
+
+    --secondary: 45 20% 90%;
+    --secondary-foreground: 150 10% 15%;
+
+    --muted: 45 15% 92%;
+    --muted-foreground: 150 5% 45%;
+
+    --accent: 83 25% 85%;
+    --accent-foreground: 83 32% 25%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 83 15% 82%;
+    --input: 83 15% 82%;
+    --ring: 83 32% 35%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --event-boxing: 0 72% 60%;
+    --event-improv: 45 90% 55%;
+    --event-baking: 25 80% 55%;
+    --event-painting: 260 55% 60%;
+    --event-social: 83 32% 35%;
+    --event-tbd: 200 15% 60%;
+  }
+
+  .dark {
+    --background: 150 10% 10%;
+    --foreground: 45 33% 96%;
+    --card: 150 10% 12%;
+    --card-foreground: 45 33% 96%;
+    --popover: 150 10% 12%;
+    --popover-foreground: 45 33% 96%;
+    --primary: 83 40% 50%;
+    --primary-foreground: 150 10% 10%;
+    --secondary: 150 10% 18%;
+    --secondary-foreground: 45 33% 96%;
+    --muted: 150 10% 18%;
+    --muted-foreground: 45 10% 65%;
+    --accent: 83 25% 25%;
+    --accent-foreground: 83 40% 80%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 150 10% 22%;
+    --input: 150 10% 22%;
+    --ring: 83 40% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+}
