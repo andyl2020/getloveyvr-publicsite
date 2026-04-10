@@ -273,7 +273,7 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="about" className="py-20 px-4 bg-secondary/50">
+      <section id="about" className="py-20 px-4 bg-secondary border-y border-border/70">
         <div className="container max-w-4xl mx-auto">
           <h2 className="text-3xl sm:text-4xl font-heading font-bold text-center mb-12">Stop swiping. Start connecting.</h2>
           <div className="grid sm:grid-cols-3 gap-8">
