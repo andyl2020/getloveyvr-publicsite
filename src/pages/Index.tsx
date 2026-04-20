@@ -27,6 +27,7 @@ interface EventInfo {
   month: number;
   year: number;
   title: string;
+  time?: string;
   emoji: string;
   colorClass: string;
   tentative?: boolean;
@@ -35,12 +36,12 @@ interface EventInfo {
 const events: EventInfo[] = [
   { seriesNumber: 1, date: 26, month: 3, year: 2026, title: "Boxing", emoji: "\u{1F94A}", colorClass: "bg-event-boxing" },
   { seriesNumber: 2, date: 3, month: 4, year: 2026, title: "Improv", emoji: "\u{1F3AD}", colorClass: "bg-event-improv" },
-  { seriesNumber: 3, date: 10, month: 4, year: 2026, title: "Baking", emoji: "\u{1F9C1}", colorClass: "bg-event-baking" },
-  { seriesNumber: 4, date: 24, month: 4, year: 2026, title: "Painting", emoji: "\u{1F3A8}", colorClass: "bg-event-painting" },
-  { seriesNumber: 5, date: 31, month: 4, year: 2026, title: "Social / Bingo", emoji: "\u{1F389}", colorClass: "bg-event-social", tentative: true },
-  { seriesNumber: 6, date: 7, month: 5, year: 2026, title: "TBD", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
-  { seriesNumber: 7, date: 21, month: 5, year: 2026, title: "TBD", emoji: "\u{2728}", colorClass: "bg-event-tbd" },
-  { seriesNumber: 8, date: 28, month: 5, year: 2026, title: "TBD", emoji: "\u{2728}", colorClass: "bg-event-tbd" },
+  { seriesNumber: 3, date: 24, month: 4, year: 2026, title: "Painting", emoji: "\u{1F3A8}", colorClass: "bg-event-painting" },
+  { seriesNumber: 4, date: 7, month: 5, year: 2026, title: "Sunset Bike Ride", time: "6:30-9:00 PM", emoji: "\u{1F6B2}", colorClass: "bg-event-social" },
+  { seriesNumber: 5, date: 28, month: 5, year: 2026, title: "Board Games + Karaoke", emoji: "\u{1F3B2}", colorClass: "bg-event-social" },
+  { seriesNumber: 6, date: 19, month: 6, year: 2026, title: "TBD Event", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
+  { seriesNumber: 7, date: 9, month: 7, year: 2026, title: "Social Bingo", emoji: "\u{1F389}", colorClass: "bg-event-social", tentative: true },
+  { seriesNumber: 8, date: 30, month: 7, year: 2026, title: "TBD Event", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
 ];
 
 const TOTAL_EVENTS = events.length;
@@ -183,6 +184,7 @@ const EventCalendar = () => {
                   <p className="font-heading font-medium">{event.title}</p>
                   <p className="text-xs text-muted-foreground">
                     {MONTHS[event.month]} {event.date}
+                    {event.time && ` • ${event.time}`}
                     {event.tentative && " - Tentative"}
                   </p>
                 </div>
@@ -252,7 +254,7 @@ const Index = () => {
             in real life.
           </h1>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto mb-8">
-            8 events. 10 weeks. Will you find love?
+            8 events. Will you find love?
             <br />
             Activity-based singles events in Vancouver.
           </p>
