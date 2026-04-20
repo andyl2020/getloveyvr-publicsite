@@ -254,9 +254,11 @@ const Index = () => {
             in real life.
           </h1>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto mb-8">
-            8 events. Will you find love?
+            8 activity-based singles events in Vancouver.
             <br />
-            Activity-based singles events in Vancouver.
+            Will you find love?
+            <br />
+            Come find out!
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Button size="lg" asChild className="text-base px-8">
