@@ -101,8 +101,6 @@ const EventCalendar = () => {
   const todayMonth = today.getMonth();
   const todayDate = today.getDate();
   const todayYear = today.getFullYear();
-  const viewingTodayMonth = currentMonth === todayMonth && currentYear === todayYear;
-  const todayEvent = getEventForDay(todayDate, todayMonth, todayYear);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -132,11 +130,6 @@ const EventCalendar = () => {
     setCurrentMonth((month) => month + 1);
   };
 
-  const jumpToToday = () => {
-    setCurrentMonth(todayMonth);
-    setCurrentYear(todayYear);
-  };
-
   return (
     <div className="max-w-lg mx-auto">
       <div className="flex items-center justify-between mb-6">
@@ -161,21 +154,6 @@ const EventCalendar = () => {
         </button>
       </div>
 
-      <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
-        <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-primary">Today</p>
-          <p className="font-heading font-medium">
-            {MONTHS[todayMonth]} {todayDate}, {todayYear}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {todayEvent ? `${todayEvent.emoji} ${todayEvent.title}` : "No event scheduled today"}
-          </p>
-        </div>
-        <Button size="sm" variant="outline" onClick={jumpToToday} disabled={viewingTodayMonth}>
-          {viewingTodayMonth ? "Viewing Today" : "Go to Today"}
-        </Button>
-      </div>
-
       <div className="grid grid-cols-7 gap-1 mb-2">
         {DAYS.map((dayLabel) => (
           <div key={dayLabel} className="text-center text-xs font-medium text-muted-foreground py-1">
@@ -198,7 +176,7 @@ const EventCalendar = () => {
               key={day}
               className={[
                 "relative aspect-square flex flex-col items-center justify-center rounded-lg text-sm",
-                isToday ? "font-semibold ring-2 ring-primary/35 bg-primary/10 text-primary shadow-sm" : "",
+                isToday ? "font-semibold ring-2 ring-primary/40 bg-primary/15 text-primary shadow-sm" : "",
                 !isToday && event ? "font-semibold ring-2 ring-primary/30 bg-primary/5" : "",
                 !event && !isToday ? "text-muted-foreground" : "",
               ]
