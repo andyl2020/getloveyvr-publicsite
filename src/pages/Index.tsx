@@ -161,8 +161,8 @@ const EventCalendar = () => {
         </button>
       </div>
 
-      <div className="mb-4 flex flex-col items-center gap-3 rounded-2xl border border-primary/10 bg-primary/[0.03] px-4 py-3 text-center">
-        <div className="space-y-1">
+      <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
+        <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-primary">Today</p>
           <p className="font-heading font-medium">
             {MONTHS[todayMonth]} {todayDate}, {todayYear}
@@ -198,19 +198,13 @@ const EventCalendar = () => {
               key={day}
               className={[
                 "relative aspect-square flex flex-col items-center justify-center rounded-lg text-sm",
-                isToday ? "font-semibold ring-2 ring-primary bg-primary text-primary-foreground shadow-sm" : "",
+                isToday ? "font-semibold ring-2 ring-primary/35 bg-primary/10 text-primary shadow-sm" : "",
                 !isToday && event ? "font-semibold ring-2 ring-primary/30 bg-primary/5" : "",
-                !event ? "text-muted-foreground" : "",
-                isToday ? "text-primary-foreground" : "",
+                !event && !isToday ? "text-muted-foreground" : "",
               ]
                 .filter(Boolean)
                 .join(" ")}
             >
-              {isToday && (
-                <span className="absolute top-1 right-1 text-[9px] font-semibold uppercase tracking-[0.14em]">
-                  Today
-                </span>
-              )}
               <span>{day}</span>
               {event && <span className="text-base leading-none mt-0.5">{event.emoji}</span>}
             </div>
