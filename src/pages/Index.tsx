@@ -161,8 +161,8 @@ const EventCalendar = () => {
         </button>
       </div>
 
-      <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
-        <div>
+      <div className="mb-4 flex flex-col items-center gap-3 rounded-2xl border border-primary/10 bg-primary/[0.03] px-4 py-3 text-center">
+        <div className="space-y-1">
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-primary">Today</p>
           <p className="font-heading font-medium">
             {MONTHS[todayMonth]} {todayDate}, {todayYear}
