@@ -85,6 +85,10 @@ function getEventLabel(event: EventInfo) {
   return `Event ${event.seriesNumber} of ${TOTAL_EVENTS}`;
 }
 
+function isJoinAvailable(event: EventInfo) {
+  return event.seriesNumber < 3;
+}
+
 const EventCalendar = () => {
   const [currentMonth, setCurrentMonth] = useState(3);
   const [currentYear, setCurrentYear] = useState(2026);
@@ -170,32 +174,47 @@ const EventCalendar = () => {
 
       {monthEvents.length > 0 && (
         <div className="mt-6 space-y-2">
-          {monthEvents.map((event) => (
-            <div
-              key={`${event.month}-${event.date}`}
-              className="flex items-center gap-3 p-3 rounded-xl bg-card border hover:border-primary/40 transition-colors"
-            >
-              <div className="flex flex-1 items-center gap-3 text-left">
-                <span className="text-2xl">{event.emoji}</span>
-                <div className="flex-1">
-                  <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                    {getEventLabel(event)}
-                  </p>
-                  <p className="font-heading font-medium">{event.title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {MONTHS[event.month]} {event.date}
-                    {event.time && ` • ${event.time}`}
-                    {event.tentative && " - Tentative"}
-                  </p>
+          {monthEvents.map((event) => {
+            const joinAvailable = isJoinAvailable(event);
+
+            return (
+              <div
+                key={`${event.month}-${event.date}`}
+                className="flex items-center gap-3 p-3 rounded-xl bg-card border hover:border-primary/40 transition-colors"
+              >
+                <div className="flex flex-1 items-center gap-3 text-left">
+                  <span className="text-2xl">{event.emoji}</span>
+                  <div className="flex-1">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                      {getEventLabel(event)}
+                    </p>
+                    <p className="font-heading font-medium">{event.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {MONTHS[event.month]} {event.date}
+                      {event.time && ` • ${event.time}`}
+                      {event.tentative && " - Tentative"}
+                    </p>
+                  </div>
                 </div>
+                {joinAvailable ? (
+                  <Button size="sm" variant="outline" asChild>
+                    <a href={FLOCK_URL} target="_blank" rel="noopener noreferrer">
+                      Join
+                    </a>
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled
+                    className="cursor-not-allowed bg-muted text-muted-foreground disabled:opacity-100"
+                  >
+                    TBD
+                  </Button>
+                )}
               </div>
-              <Button size="sm" variant="outline" asChild>
-                <a href={FLOCK_URL} target="_blank" rel="noopener noreferrer">
-                  Join
-                </a>
-              </Button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
