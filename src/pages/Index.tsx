@@ -10,7 +10,7 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import NotFound from "./NotFound";
@@ -431,12 +431,40 @@ const EventCalendar = ({ targetedEvent }: { targetedEvent?: EventInfo }) => {
 };
 
 const Index = () => {
+  const location = useLocation();
   const { eventSlug } = useParams();
   const targetedEvent = findEventBySlug(eventSlug);
 
   if (eventSlug && !targetedEvent) {
     return <NotFound />;
   }
+
+  useEffect(() => {
+    if (!location.hash) {
+      return;
+    }
+
+    const targetId = location.hash.slice(1);
+    const frameId = window.requestAnimationFrame(() => {
+      const targetElement = document.getElementById(targetId);
+
+      if (!targetElement) {
+        return;
+      }
+
+      const headerOffset = 96;
+      const targetTop = Math.max(targetElement.getBoundingClientRect().top + window.scrollY - headerOffset, 0);
+
+      window.scrollTo({
+        top: targetTop,
+        behavior: "smooth",
+      });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, [location.hash]);
 
   return (
     <div className="min-h-screen">
