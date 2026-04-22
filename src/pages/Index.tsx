@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type SyntheticEvent as ReactSyntheticEvent } from "react";
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import NotFound from "./NotFound";
 
 const TikTokIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -21,9 +23,14 @@ const TikTokIcon = ({ className }: { className?: string }) => (
 
 const logo = `${import.meta.env.BASE_URL}logo-mark.png`;
 const FLOCK_URL = "https://flocksocial.app/flocks/57c9a846-3663-4bec-85b8-60c01cd5e322";
+const BASE_PATH = import.meta.env.BASE_URL === "/" ? "" : import.meta.env.BASE_URL.replace(/\/$/, "");
+const COPY_NOTICE_DURATION_MS = 1400;
+const LONG_PRESS_DURATION_MS = 600;
+const FOCUS_GLOW_DURATION_MS = 3200;
 
 interface EventInfo {
   slug: string;
+  shareSlug: string;
   seriesNumber: number;
   date: number;
   month: number;
@@ -38,14 +45,14 @@ interface EventInfo {
 }
 
 const events: EventInfo[] = [
-  { slug: "boxing", seriesNumber: 1, date: 26, month: 3, year: 2026, title: "Boxing", joinUrl: "https://flocksocial.app/e/get-love-yvr-ep-1-rumble-boxing-da3470", emoji: "\u{1F94A}", colorClass: "bg-event-boxing" },
-  { slug: "improv", seriesNumber: 2, date: 3, month: 4, year: 2026, title: "Improv", joinUrl: "https://flocksocial.app/e/singles-improv-night-454412", emoji: "\u{1F3AD}", colorClass: "bg-event-improv" },
-  { slug: "painting", seriesNumber: 3, date: 24, month: 4, year: 2026, title: "Painting", joinUrl: "https://flocksocial.app/e/a-card-a-canvas-a-stranger-meet-someone-through-th-52fcfa", publicJoinEnabled: false, emoji: "\u{1F3A8}", colorClass: "bg-event-painting" },
-  { slug: "sunset-bike-ride", seriesNumber: 4, date: 7, month: 5, year: 2026, title: "Sunset Bike Ride", time: "6:30-9:00 PM", emoji: "\u{1F6B2}", colorClass: "bg-event-social" },
-  { slug: "board-games-karaoke", seriesNumber: 5, date: 28, month: 5, year: 2026, title: "Board Games + Karaoke", emoji: "\u{1F3B2}", colorClass: "bg-event-social" },
-  { slug: "event-6", seriesNumber: 6, date: 19, month: 6, year: 2026, title: "TBD Event", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
-  { slug: "event-7", seriesNumber: 7, date: 9, month: 7, year: 2026, title: "TBD Event", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
-  { slug: "event-8", seriesNumber: 8, date: 30, month: 7, year: 2026, title: "TBD Event", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
+  { slug: "boxing", shareSlug: "e1-boxing", seriesNumber: 1, date: 26, month: 3, year: 2026, title: "Boxing", joinUrl: "https://flocksocial.app/e/get-love-yvr-ep-1-rumble-boxing-da3470", emoji: "\u{1F94A}", colorClass: "bg-event-boxing" },
+  { slug: "improv", shareSlug: "e2-improv", seriesNumber: 2, date: 3, month: 4, year: 2026, title: "Improv", joinUrl: "https://flocksocial.app/e/singles-improv-night-454412", emoji: "\u{1F3AD}", colorClass: "bg-event-improv" },
+  { slug: "painting", shareSlug: "e3-painting", seriesNumber: 3, date: 24, month: 4, year: 2026, title: "Painting", joinUrl: "https://flocksocial.app/e/a-card-a-canvas-a-stranger-meet-someone-through-th-52fcfa", publicJoinEnabled: false, emoji: "\u{1F3A8}", colorClass: "bg-event-painting" },
+  { slug: "sunset-bike-ride", shareSlug: "e4-sunset-bike-ride", seriesNumber: 4, date: 7, month: 5, year: 2026, title: "Sunset Bike Ride", time: "6:30-9:00 PM", emoji: "\u{1F6B2}", colorClass: "bg-event-social" },
+  { slug: "board-games-karaoke", shareSlug: "e5-board-games-karaoke", seriesNumber: 5, date: 28, month: 5, year: 2026, title: "Board Games + Karaoke", emoji: "\u{1F3B2}", colorClass: "bg-event-social" },
+  { slug: "event-6", shareSlug: "e6-event", seriesNumber: 6, date: 19, month: 6, year: 2026, title: "TBD Event", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
+  { slug: "event-7", shareSlug: "e7-event", seriesNumber: 7, date: 9, month: 7, year: 2026, title: "TBD Event", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
+  { slug: "event-8", shareSlug: "e8-event", seriesNumber: 8, date: 30, month: 7, year: 2026, title: "TBD Event", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
 ];
 
 const TOTAL_EVENTS = events.length;
@@ -89,24 +96,59 @@ function getEventLabel(event: EventInfo) {
   return `Event ${event.seriesNumber} of ${TOTAL_EVENTS}`;
 }
 
+function findEventBySlug(eventSlug?: string) {
+  if (!eventSlug) {
+    return undefined;
+  }
+
+  return events.find((event) => event.slug === eventSlug || event.shareSlug === eventSlug);
+}
+
 function isJoinAvailable(event: EventInfo) {
   return Boolean(event.joinUrl && event.publicJoinEnabled !== false);
 }
 
-const EventCalendar = ({ targetedEventSlug }: { targetedEventSlug?: string }) => {
-  const initialTargetedEvent = targetedEventSlug ? events.find((event) => event.slug === targetedEventSlug) : undefined;
+function getEventSharePath(event: EventInfo) {
+  return `${BASE_PATH}/${event.shareSlug}`;
+}
+
+function getEventShareUrl(event: EventInfo) {
+  return new URL(getEventSharePath(event), window.location.origin).toString();
+}
+
+async function copyTextToClipboard(text: string) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "absolute";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
+}
+
+const EventCalendar = ({ targetedEvent }: { targetedEvent?: EventInfo }) => {
   const [today, setToday] = useState(() => new Date());
-  const [currentMonth, setCurrentMonth] = useState(() => initialTargetedEvent?.month ?? 3);
-  const [currentYear, setCurrentYear] = useState(() => initialTargetedEvent?.year ?? 2026);
-  const [pendingFocusSlug, setPendingFocusSlug] = useState<string | null>(initialTargetedEvent?.slug ?? null);
+  const [currentMonth, setCurrentMonth] = useState(() => targetedEvent?.month ?? 3);
+  const [currentYear, setCurrentYear] = useState(() => targetedEvent?.year ?? 2026);
+  const [pendingFocusSlug, setPendingFocusSlug] = useState<string | null>(targetedEvent?.slug ?? null);
   const [glowingSlug, setGlowingSlug] = useState<string | null>(null);
+  const [copyDialogMessage, setCopyDialogMessage] = useState<string | null>(null);
+  const copyDialogTimeoutRef = useRef<number | null>(null);
+  const longPressTimeoutRef = useRef<number | null>(null);
+  const suppressNextClickRef = useRef(false);
 
   const days = getCalendarDays(currentMonth, currentYear);
   const monthEvents = events.filter((event) => event.month === currentMonth && event.year === currentYear);
   const todayMonth = today.getMonth();
   const todayDate = today.getDate();
   const todayYear = today.getFullYear();
-  const targetedEvent = targetedEventSlug ? events.find((event) => event.slug === targetedEventSlug) : undefined;
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -115,6 +157,17 @@ const EventCalendar = ({ targetedEventSlug }: { targetedEventSlug?: string }) =>
 
     return () => {
       window.clearInterval(intervalId);
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (copyDialogTimeoutRef.current) {
+        window.clearTimeout(copyDialogTimeoutRef.current);
+      }
+      if (longPressTimeoutRef.current) {
+        window.clearTimeout(longPressTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -157,7 +210,7 @@ const EventCalendar = ({ targetedEventSlug }: { targetedEventSlug?: string }) =>
       setPendingFocusSlug(null);
       glowTimeoutId = window.setTimeout(() => {
         setGlowingSlug((currentSlug) => (currentSlug === pendingFocusSlug ? null : currentSlug));
-      }, 3200);
+      }, FOCUS_GLOW_DURATION_MS);
     });
 
     return () => {
@@ -167,6 +220,67 @@ const EventCalendar = ({ targetedEventSlug }: { targetedEventSlug?: string }) =>
       }
     };
   }, [currentMonth, currentYear, pendingFocusSlug]);
+
+  const showCopyDialog = (message: string) => {
+    setCopyDialogMessage(message);
+    if (copyDialogTimeoutRef.current) {
+      window.clearTimeout(copyDialogTimeoutRef.current);
+    }
+    copyDialogTimeoutRef.current = window.setTimeout(() => {
+      setCopyDialogMessage(null);
+    }, COPY_NOTICE_DURATION_MS);
+  };
+
+  const copyEventLink = async (event: EventInfo) => {
+    try {
+      await copyTextToClipboard(getEventShareUrl(event));
+      showCopyDialog("Event link copied");
+    } catch {
+      showCopyDialog("Could not copy event link");
+    }
+  };
+
+  const clearLongPress = () => {
+    if (longPressTimeoutRef.current) {
+      window.clearTimeout(longPressTimeoutRef.current);
+      longPressTimeoutRef.current = null;
+    }
+  };
+
+  const startLongPressCopy = (event: EventInfo) => {
+    clearLongPress();
+    suppressNextClickRef.current = false;
+    longPressTimeoutRef.current = window.setTimeout(() => {
+      suppressNextClickRef.current = true;
+      void copyEventLink(event);
+    }, LONG_PRESS_DURATION_MS);
+  };
+
+  const handleEventClickCapture = (event: ReactSyntheticEvent) => {
+    if (!suppressNextClickRef.current) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    suppressNextClickRef.current = false;
+  };
+
+  const getCopyInteractionProps = (event: EventInfo) => ({
+    onContextMenu: (domEvent: ReactMouseEvent<HTMLElement>) => {
+      domEvent.preventDefault();
+      domEvent.stopPropagation();
+      void copyEventLink(event);
+    },
+    onTouchStart: () => {
+      startLongPressCopy(event);
+    },
+    onTouchEnd: clearLongPress,
+    onTouchCancel: clearLongPress,
+    onTouchMove: clearLongPress,
+    onClickCapture: handleEventClickCapture,
+    title: `Right-click or press and hold to copy the link for ${event.title}`,
+  });
 
   const prevMonth = () => {
     if (currentMonth === 0) {
@@ -227,6 +341,7 @@ const EventCalendar = ({ targetedEventSlug }: { targetedEventSlug?: string }) =>
           const event = getEventForDay(day, currentMonth, currentYear);
           const isToday = day === todayDate && currentMonth === todayMonth && currentYear === todayYear;
           const isFocusedEvent = event?.slug === glowingSlug;
+          const copyInteractionProps = event ? getCopyInteractionProps(event) : undefined;
 
           return (
             <div
@@ -237,9 +352,11 @@ const EventCalendar = ({ targetedEventSlug }: { targetedEventSlug?: string }) =>
                 isFocusedEvent ? "event-focus-glow ring-2 ring-primary/55 bg-primary/12 text-primary shadow-sm" : "",
                 !isToday && event && !isFocusedEvent ? "font-semibold ring-2 ring-primary/30 bg-primary/5" : "",
                 !event && !isToday ? "text-muted-foreground" : "",
+                event ? "cursor-context-menu select-none" : "",
               ]
                 .filter(Boolean)
                 .join(" ")}
+              {...copyInteractionProps}
             >
               <span>{day}</span>
               {event && <span className="text-base leading-none mt-0.5">{event.emoji}</span>}
@@ -258,11 +375,12 @@ const EventCalendar = ({ targetedEventSlug }: { targetedEventSlug?: string }) =>
                 id={`event-card-${event.slug}`}
                 key={`${event.month}-${event.date}`}
                 className={[
-                  "flex items-center gap-3 p-3 rounded-xl bg-card border hover:border-primary/40 transition-colors scroll-mt-32",
+                  "flex items-center gap-3 p-3 rounded-xl bg-card border hover:border-primary/40 transition-colors scroll-mt-32 cursor-context-menu select-none",
                   glowingSlug === event.slug ? "event-focus-glow border-primary/55 shadow-lg" : "",
                 ]
                   .filter(Boolean)
                   .join(" ")}
+                {...getCopyInteractionProps(event)}
               >
                 <div className="flex flex-1 items-center gap-3 text-left">
                   <span className="text-2xl">{event.emoji}</span>
@@ -299,12 +417,26 @@ const EventCalendar = ({ targetedEventSlug }: { targetedEventSlug?: string }) =>
           })}
         </div>
       )}
+
+      <Dialog open={Boolean(copyDialogMessage)} onOpenChange={() => setCopyDialogMessage(null)}>
+        <DialogContent className="max-w-xs text-center [&>button]:hidden">
+          <DialogHeader className="text-center">
+            <DialogTitle>{copyDialogMessage}</DialogTitle>
+            <DialogDescription>Right-click or press and hold any event to copy its direct link.</DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
 const Index = () => {
   const { eventSlug } = useParams();
+  const targetedEvent = findEventBySlug(eventSlug);
+
+  if (eventSlug && !targetedEvent) {
+    return <NotFound />;
+  }
 
   return (
     <div className="min-h-screen">
@@ -421,7 +553,7 @@ const Index = () => {
           <p className="text-center text-muted-foreground mb-12 max-w-md mx-auto">
             Browse the month and use Join when an event feels like your kind of night.
           </p>
-          <EventCalendar targetedEventSlug={eventSlug} />
+          <EventCalendar targetedEvent={targetedEvent} />
         </div>
       </section>
 
