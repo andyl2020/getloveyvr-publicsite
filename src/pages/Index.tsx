@@ -10,6 +10,7 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
+import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -22,6 +23,7 @@ const logo = `${import.meta.env.BASE_URL}logo-mark.png`;
 const FLOCK_URL = "https://flocksocial.app/flocks/57c9a846-3663-4bec-85b8-60c01cd5e322";
 
 interface EventInfo {
+  slug: string;
   seriesNumber: number;
   date: number;
   month: number;
@@ -36,14 +38,14 @@ interface EventInfo {
 }
 
 const events: EventInfo[] = [
-  { seriesNumber: 1, date: 26, month: 3, year: 2026, title: "Boxing", joinUrl: "https://flocksocial.app/e/get-love-yvr-ep-1-rumble-boxing-da3470", emoji: "\u{1F94A}", colorClass: "bg-event-boxing" },
-  { seriesNumber: 2, date: 3, month: 4, year: 2026, title: "Improv", joinUrl: "https://flocksocial.app/e/singles-improv-night-454412", emoji: "\u{1F3AD}", colorClass: "bg-event-improv" },
-  { seriesNumber: 3, date: 24, month: 4, year: 2026, title: "Painting", joinUrl: "https://flocksocial.app/e/a-card-a-canvas-a-stranger-meet-someone-through-th-52fcfa", publicJoinEnabled: false, emoji: "\u{1F3A8}", colorClass: "bg-event-painting" },
-  { seriesNumber: 4, date: 7, month: 5, year: 2026, title: "Sunset Bike Ride", time: "6:30-9:00 PM", emoji: "\u{1F6B2}", colorClass: "bg-event-social" },
-  { seriesNumber: 5, date: 28, month: 5, year: 2026, title: "Board Games + Karaoke", emoji: "\u{1F3B2}", colorClass: "bg-event-social" },
-  { seriesNumber: 6, date: 19, month: 6, year: 2026, title: "TBD Event", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
-  { seriesNumber: 7, date: 9, month: 7, year: 2026, title: "TBD Event", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
-  { seriesNumber: 8, date: 30, month: 7, year: 2026, title: "TBD Event", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
+  { slug: "boxing", seriesNumber: 1, date: 26, month: 3, year: 2026, title: "Boxing", joinUrl: "https://flocksocial.app/e/get-love-yvr-ep-1-rumble-boxing-da3470", emoji: "\u{1F94A}", colorClass: "bg-event-boxing" },
+  { slug: "improv", seriesNumber: 2, date: 3, month: 4, year: 2026, title: "Improv", joinUrl: "https://flocksocial.app/e/singles-improv-night-454412", emoji: "\u{1F3AD}", colorClass: "bg-event-improv" },
+  { slug: "painting", seriesNumber: 3, date: 24, month: 4, year: 2026, title: "Painting", joinUrl: "https://flocksocial.app/e/a-card-a-canvas-a-stranger-meet-someone-through-th-52fcfa", publicJoinEnabled: false, emoji: "\u{1F3A8}", colorClass: "bg-event-painting" },
+  { slug: "sunset-bike-ride", seriesNumber: 4, date: 7, month: 5, year: 2026, title: "Sunset Bike Ride", time: "6:30-9:00 PM", emoji: "\u{1F6B2}", colorClass: "bg-event-social" },
+  { slug: "board-games-karaoke", seriesNumber: 5, date: 28, month: 5, year: 2026, title: "Board Games + Karaoke", emoji: "\u{1F3B2}", colorClass: "bg-event-social" },
+  { slug: "event-6", seriesNumber: 6, date: 19, month: 6, year: 2026, title: "TBD Event", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
+  { slug: "event-7", seriesNumber: 7, date: 9, month: 7, year: 2026, title: "TBD Event", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
+  { slug: "event-8", seriesNumber: 8, date: 30, month: 7, year: 2026, title: "TBD Event", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
 ];
 
 const TOTAL_EVENTS = events.length;
@@ -91,16 +93,20 @@ function isJoinAvailable(event: EventInfo) {
   return Boolean(event.joinUrl && event.publicJoinEnabled !== false);
 }
 
-const EventCalendar = () => {
+const EventCalendar = ({ targetedEventSlug }: { targetedEventSlug?: string }) => {
+  const initialTargetedEvent = targetedEventSlug ? events.find((event) => event.slug === targetedEventSlug) : undefined;
   const [today, setToday] = useState(() => new Date());
-  const [currentMonth, setCurrentMonth] = useState(3);
-  const [currentYear, setCurrentYear] = useState(2026);
+  const [currentMonth, setCurrentMonth] = useState(() => initialTargetedEvent?.month ?? 3);
+  const [currentYear, setCurrentYear] = useState(() => initialTargetedEvent?.year ?? 2026);
+  const [pendingFocusSlug, setPendingFocusSlug] = useState<string | null>(initialTargetedEvent?.slug ?? null);
+  const [glowingSlug, setGlowingSlug] = useState<string | null>(null);
 
   const days = getCalendarDays(currentMonth, currentYear);
   const monthEvents = events.filter((event) => event.month === currentMonth && event.year === currentYear);
   const todayMonth = today.getMonth();
   const todayDate = today.getDate();
   const todayYear = today.getFullYear();
+  const targetedEvent = targetedEventSlug ? events.find((event) => event.slug === targetedEventSlug) : undefined;
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -111,6 +117,56 @@ const EventCalendar = () => {
       window.clearInterval(intervalId);
     };
   }, []);
+
+  useEffect(() => {
+    if (!targetedEvent) {
+      return;
+    }
+
+    setPendingFocusSlug(targetedEvent.slug);
+    setCurrentMonth(targetedEvent.month);
+    setCurrentYear(targetedEvent.year);
+  }, [targetedEvent]);
+
+  useEffect(() => {
+    if (!pendingFocusSlug) {
+      return;
+    }
+
+    const focusedEvent = events.find((event) => event.slug === pendingFocusSlug);
+
+    if (!focusedEvent) {
+      setPendingFocusSlug(null);
+      return;
+    }
+
+    if (currentMonth !== focusedEvent.month || currentYear !== focusedEvent.year) {
+      return;
+    }
+
+    let glowTimeoutId: number | undefined;
+    const frameId = window.requestAnimationFrame(() => {
+      const targetElement = document.getElementById(`event-card-${pendingFocusSlug}`);
+
+      if (!targetElement) {
+        return;
+      }
+
+      targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      setGlowingSlug(pendingFocusSlug);
+      setPendingFocusSlug(null);
+      glowTimeoutId = window.setTimeout(() => {
+        setGlowingSlug((currentSlug) => (currentSlug === pendingFocusSlug ? null : currentSlug));
+      }, 3200);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      if (glowTimeoutId) {
+        window.clearTimeout(glowTimeoutId);
+      }
+    };
+  }, [currentMonth, currentYear, pendingFocusSlug]);
 
   const prevMonth = () => {
     if (currentMonth === 0) {
@@ -170,6 +226,7 @@ const EventCalendar = () => {
 
           const event = getEventForDay(day, currentMonth, currentYear);
           const isToday = day === todayDate && currentMonth === todayMonth && currentYear === todayYear;
+          const isFocusedEvent = event?.slug === glowingSlug;
 
           return (
             <div
@@ -177,7 +234,8 @@ const EventCalendar = () => {
               className={[
                 "relative aspect-square flex flex-col items-center justify-center rounded-lg text-sm",
                 isToday ? "font-semibold ring-2 ring-primary/40 bg-primary/15 text-primary shadow-sm" : "",
-                !isToday && event ? "font-semibold ring-2 ring-primary/30 bg-primary/5" : "",
+                isFocusedEvent ? "event-focus-glow ring-2 ring-primary/55 bg-primary/12 text-primary shadow-sm" : "",
+                !isToday && event && !isFocusedEvent ? "font-semibold ring-2 ring-primary/30 bg-primary/5" : "",
                 !event && !isToday ? "text-muted-foreground" : "",
               ]
                 .filter(Boolean)
@@ -197,8 +255,14 @@ const EventCalendar = () => {
 
             return (
               <div
+                id={`event-card-${event.slug}`}
                 key={`${event.month}-${event.date}`}
-                className="flex items-center gap-3 p-3 rounded-xl bg-card border hover:border-primary/40 transition-colors"
+                className={[
+                  "flex items-center gap-3 p-3 rounded-xl bg-card border hover:border-primary/40 transition-colors scroll-mt-32",
+                  glowingSlug === event.slug ? "event-focus-glow border-primary/55 shadow-lg" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
               >
                 <div className="flex flex-1 items-center gap-3 text-left">
                   <span className="text-2xl">{event.emoji}</span>
@@ -240,6 +304,8 @@ const EventCalendar = () => {
 };
 
 const Index = () => {
+  const { eventSlug } = useParams();
+
   return (
     <div className="min-h-screen">
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b">
@@ -355,7 +421,7 @@ const Index = () => {
           <p className="text-center text-muted-foreground mb-12 max-w-md mx-auto">
             Browse the month and use Join when an event feels like your kind of night.
           </p>
-          <EventCalendar />
+          <EventCalendar targetedEventSlug={eventSlug} />
         </div>
       </section>
 
