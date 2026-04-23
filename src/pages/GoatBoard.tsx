@@ -18,6 +18,36 @@ import {
 
 const logo = `${import.meta.env.BASE_URL}logo-mark.png`;
 
+function formatAuthError(error: unknown) {
+  const code =
+    typeof error === "object" && error && "code" in error && typeof error.code === "string"
+      ? error.code
+      : "";
+  const message =
+    typeof error === "object" && error && "message" in error && typeof error.message === "string"
+      ? error.message
+      : "";
+
+  if (code === "auth/unauthorized-domain" || code === "auth/app-not-authorized") {
+    const currentHost = typeof window !== "undefined" ? window.location.hostname : "this domain";
+    const suggestedDomains = [
+      currentHost,
+      "getloveyvr.ca",
+      "www.getloveyvr.ca",
+      "localhost",
+      "127.0.0.1",
+    ].filter((value, index, values) => value && values.indexOf(value) === index);
+
+    return `Firebase Auth has not authorized ${currentHost} yet. In Firebase Console for getloveyvr-dashboard, open Authentication > Settings > Authorized domains and add ${suggestedDomains.join(", ")}.`;
+  }
+
+  if (code === "auth/popup-closed-by-user") {
+    return "Google sign-in was closed before it finished.";
+  }
+
+  return message || "Could not open Google sign-in.";
+}
+
 function AccessShell({
   children,
   eyebrow,
@@ -92,7 +122,7 @@ export default function GoatBoard() {
     try {
       await signInWithGoogle();
     } catch (error) {
-      setAuthError(error?.message || "Could not open Google sign-in.");
+      setAuthError(formatAuthError(error));
     } finally {
       setIsSigningIn(false);
     }
