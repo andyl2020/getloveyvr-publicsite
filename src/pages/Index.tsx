@@ -3,6 +3,7 @@ import {
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
+  DoorOpen,
   ExternalLink,
   Heart,
   Instagram,
@@ -10,9 +11,11 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
-import { useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { type EventScheduleEntry, getEventCalendarParts } from "@/data/eventSchedule";
+import { useEventSchedule } from "@/hooks/useEventSchedule";
 import NotFound from "./NotFound";
 
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -27,35 +30,6 @@ const BASE_PATH = import.meta.env.BASE_URL === "/" ? "" : import.meta.env.BASE_U
 const COPY_NOTICE_DURATION_MS = 1400;
 const LONG_PRESS_DURATION_MS = 600;
 const FOCUS_GLOW_DURATION_MS = 3200;
-
-interface EventInfo {
-  slug: string;
-  shareSlug: string;
-  seriesNumber: number;
-  date: number;
-  month: number;
-  year: number;
-  title: string;
-  time?: string;
-  joinUrl?: string;
-  publicJoinEnabled?: boolean;
-  emoji: string;
-  colorClass: string;
-  tentative?: boolean;
-}
-
-const events: EventInfo[] = [
-  { slug: "boxing", shareSlug: "e1-boxing", seriesNumber: 1, date: 26, month: 3, year: 2026, title: "Boxing", joinUrl: "https://flocksocial.app/e/get-love-yvr-ep-1-rumble-boxing-da3470", emoji: "\u{1F94A}", colorClass: "bg-event-boxing" },
-  { slug: "improv", shareSlug: "e2-improv", seriesNumber: 2, date: 3, month: 4, year: 2026, title: "Improv", joinUrl: "https://flocksocial.app/e/singles-improv-night-454412", emoji: "\u{1F3AD}", colorClass: "bg-event-improv" },
-  { slug: "painting", shareSlug: "e3-painting", seriesNumber: 3, date: 24, month: 4, year: 2026, title: "Painting", joinUrl: "https://flocksocial.app/e/a-card-a-canvas-a-stranger-meet-someone-through-th-52fcfa", publicJoinEnabled: false, emoji: "\u{1F3A8}", colorClass: "bg-event-painting" },
-  { slug: "sunset-bike-ride", shareSlug: "e4-sunset-bike-ride", seriesNumber: 4, date: 7, month: 5, year: 2026, title: "Sunset Bike Ride", time: "6:30-9:00 PM", emoji: "\u{1F6B2}", colorClass: "bg-event-social" },
-  { slug: "board-games-karaoke", shareSlug: "e5-board-games-karaoke", seriesNumber: 5, date: 28, month: 5, year: 2026, title: "Board Games + Karaoke", emoji: "\u{1F3B2}", colorClass: "bg-event-social" },
-  { slug: "event-6", shareSlug: "e6-event", seriesNumber: 6, date: 19, month: 6, year: 2026, title: "TBD Event", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
-  { slug: "event-7", shareSlug: "e7-event", seriesNumber: 7, date: 9, month: 7, year: 2026, title: "TBD Event", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
-  { slug: "event-8", shareSlug: "e8-event", seriesNumber: 8, date: 30, month: 7, year: 2026, title: "TBD Event", emoji: "\u{2728}", colorClass: "bg-event-tbd", tentative: true },
-];
-
-const TOTAL_EVENTS = events.length;
 const MONTHS = [
   "January",
   "February",
@@ -88,15 +62,18 @@ function getCalendarDays(month: number, year: number) {
   return days;
 }
 
-function getEventForDay(day: number, month: number, year: number) {
-  return events.find((event) => event.date === day && event.month === month && event.year === year);
+function getEventForDay(events: EventScheduleEntry[], day: number, month: number, year: number) {
+  return events.find((event) => {
+    const parts = getEventCalendarParts(event.eventDate);
+    return parts.date === day && parts.month === month && parts.year === year;
+  });
 }
 
-function getEventLabel(event: EventInfo) {
-  return `Event ${event.seriesNumber} of ${TOTAL_EVENTS}`;
+function getEventLabel(event: EventScheduleEntry, totalEvents: number) {
+  return `Event ${event.seriesNumber} of ${totalEvents}`;
 }
 
-function findEventBySlug(eventSlug?: string) {
+function findEventBySlug(events: EventScheduleEntry[], eventSlug?: string) {
   if (!eventSlug) {
     return undefined;
   }
@@ -104,15 +81,15 @@ function findEventBySlug(eventSlug?: string) {
   return events.find((event) => event.slug === eventSlug || event.shareSlug === eventSlug);
 }
 
-function isJoinAvailable(event: EventInfo) {
+function isJoinAvailable(event: EventScheduleEntry) {
   return Boolean(event.joinUrl && event.publicJoinEnabled !== false);
 }
 
-function getEventSharePath(event: EventInfo) {
+function getEventSharePath(event: EventScheduleEntry) {
   return `${BASE_PATH}/${event.shareSlug}`;
 }
 
-function getEventShareUrl(event: EventInfo) {
+function getEventShareUrl(event: EventScheduleEntry) {
   return new URL(getEventSharePath(event), window.location.origin).toString();
 }
 
@@ -133,10 +110,18 @@ async function copyTextToClipboard(text: string) {
   document.body.removeChild(textarea);
 }
 
-const EventCalendar = ({ targetedEvent }: { targetedEvent?: EventInfo }) => {
+const EventCalendar = ({
+  events,
+  targetedEvent,
+}: {
+  events: EventScheduleEntry[];
+  targetedEvent?: EventScheduleEntry;
+}) => {
+  const initialEvent = targetedEvent ?? events[0];
+  const initialParts = initialEvent ? getEventCalendarParts(initialEvent.eventDate) : undefined;
   const [today, setToday] = useState(() => new Date());
-  const [currentMonth, setCurrentMonth] = useState(() => targetedEvent?.month ?? 3);
-  const [currentYear, setCurrentYear] = useState(() => targetedEvent?.year ?? 2026);
+  const [currentMonth, setCurrentMonth] = useState(() => initialParts?.month ?? new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState(() => initialParts?.year ?? new Date().getFullYear());
   const [pendingFocusSlug, setPendingFocusSlug] = useState<string | null>(targetedEvent?.slug ?? null);
   const [glowingSlug, setGlowingSlug] = useState<string | null>(null);
   const [copyDialogMessage, setCopyDialogMessage] = useState<string | null>(null);
@@ -145,7 +130,10 @@ const EventCalendar = ({ targetedEvent }: { targetedEvent?: EventInfo }) => {
   const suppressNextClickRef = useRef(false);
 
   const days = getCalendarDays(currentMonth, currentYear);
-  const monthEvents = events.filter((event) => event.month === currentMonth && event.year === currentYear);
+  const monthEvents = events.filter((event) => {
+    const parts = getEventCalendarParts(event.eventDate);
+    return parts.month === currentMonth && parts.year === currentYear;
+  });
   const todayMonth = today.getMonth();
   const todayDate = today.getDate();
   const todayYear = today.getFullYear();
@@ -177,8 +165,9 @@ const EventCalendar = ({ targetedEvent }: { targetedEvent?: EventInfo }) => {
     }
 
     setPendingFocusSlug(targetedEvent.slug);
-    setCurrentMonth(targetedEvent.month);
-    setCurrentYear(targetedEvent.year);
+    const parts = getEventCalendarParts(targetedEvent.eventDate);
+    setCurrentMonth(parts.month);
+    setCurrentYear(parts.year);
   }, [targetedEvent]);
 
   useEffect(() => {
@@ -193,7 +182,8 @@ const EventCalendar = ({ targetedEvent }: { targetedEvent?: EventInfo }) => {
       return;
     }
 
-    if (currentMonth !== focusedEvent.month || currentYear !== focusedEvent.year) {
+    const focusedEventParts = getEventCalendarParts(focusedEvent.eventDate);
+    if (currentMonth !== focusedEventParts.month || currentYear !== focusedEventParts.year) {
       return;
     }
 
@@ -219,7 +209,7 @@ const EventCalendar = ({ targetedEvent }: { targetedEvent?: EventInfo }) => {
         window.clearTimeout(glowTimeoutId);
       }
     };
-  }, [currentMonth, currentYear, pendingFocusSlug]);
+  }, [currentMonth, currentYear, events, pendingFocusSlug]);
 
   const showCopyDialog = (message: string) => {
     setCopyDialogMessage(message);
@@ -231,7 +221,7 @@ const EventCalendar = ({ targetedEvent }: { targetedEvent?: EventInfo }) => {
     }, COPY_NOTICE_DURATION_MS);
   };
 
-  const copyEventLink = async (event: EventInfo) => {
+  const copyEventLink = async (event: EventScheduleEntry) => {
     try {
       await copyTextToClipboard(getEventShareUrl(event));
       showCopyDialog("Event link copied");
@@ -247,7 +237,7 @@ const EventCalendar = ({ targetedEvent }: { targetedEvent?: EventInfo }) => {
     }
   };
 
-  const startLongPressCopy = (event: EventInfo) => {
+  const startLongPressCopy = (event: EventScheduleEntry) => {
     clearLongPress();
     suppressNextClickRef.current = false;
     longPressTimeoutRef.current = window.setTimeout(() => {
@@ -266,7 +256,7 @@ const EventCalendar = ({ targetedEvent }: { targetedEvent?: EventInfo }) => {
     suppressNextClickRef.current = false;
   };
 
-  const getCopyInteractionProps = (event: EventInfo) => ({
+  const getCopyInteractionProps = (event: EventScheduleEntry) => ({
     onContextMenu: (domEvent: ReactMouseEvent<HTMLElement>) => {
       domEvent.preventDefault();
       domEvent.stopPropagation();
@@ -338,7 +328,7 @@ const EventCalendar = ({ targetedEvent }: { targetedEvent?: EventInfo }) => {
             return <div key={`empty-${index}`} />;
           }
 
-          const event = getEventForDay(day, currentMonth, currentYear);
+          const event = getEventForDay(events, day, currentMonth, currentYear);
           const isToday = day === todayDate && currentMonth === todayMonth && currentYear === todayYear;
           const isFocusedEvent = event?.slug === glowingSlug;
           const copyInteractionProps = event ? getCopyInteractionProps(event) : undefined;
@@ -369,11 +359,12 @@ const EventCalendar = ({ targetedEvent }: { targetedEvent?: EventInfo }) => {
         <div className="mt-6 space-y-2">
           {monthEvents.map((event) => {
             const joinAvailable = isJoinAvailable(event);
+            const eventParts = getEventCalendarParts(event.eventDate);
 
             return (
               <div
                 id={`event-card-${event.slug}`}
-                key={`${event.month}-${event.date}`}
+                key={event.id}
                 className={[
                   "flex items-center gap-3 p-3 rounded-xl bg-card border hover:border-primary/40 transition-colors scroll-mt-32 cursor-context-menu select-none",
                   glowingSlug === event.slug ? "event-focus-glow border-primary/55 shadow-lg" : "",
@@ -386,11 +377,11 @@ const EventCalendar = ({ targetedEvent }: { targetedEvent?: EventInfo }) => {
                   <span className="text-2xl">{event.emoji}</span>
                   <div className="flex-1">
                     <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                      {getEventLabel(event)}
+                      {getEventLabel(event, events.length)}
                     </p>
                     <p className="font-heading font-medium">{event.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {MONTHS[event.month]} {event.date}
+                      {MONTHS[eventParts.month]} {eventParts.date}
                       {event.time && ` - ${event.time}`}
                       {event.tentative && " - Tentative"}
                     </p>
@@ -433,11 +424,8 @@ const EventCalendar = ({ targetedEvent }: { targetedEvent?: EventInfo }) => {
 const Index = () => {
   const location = useLocation();
   const { eventSlug } = useParams();
-  const targetedEvent = findEventBySlug(eventSlug);
-
-  if (eventSlug && !targetedEvent) {
-    return <NotFound />;
-  }
+  const { schedule: events } = useEventSchedule();
+  const targetedEvent = findEventBySlug(events, eventSlug);
 
   useEffect(() => {
     if (!location.hash) {
@@ -466,6 +454,10 @@ const Index = () => {
     };
   }, [location.hash]);
 
+  if (eventSlug && !targetedEvent) {
+    return <NotFound />;
+  }
+
   return (
     <div className="min-h-screen">
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b">
@@ -486,6 +478,12 @@ const Index = () => {
             </a>
           </nav>
           <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" asChild className="rounded-full px-4">
+              <Link to="/goat-board">
+                <DoorOpen className="mr-2 h-4 w-4" />
+                Login
+              </Link>
+            </Button>
             <a
               href="https://www.instagram.com/getloveyvr"
               target="_blank"
@@ -517,7 +515,7 @@ const Index = () => {
             in real life.
           </h1>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto mb-8">
-            8 activity-based singles events in Vancouver.
+            {events.length} activity-based singles events in Vancouver.
             <br />
             Will you find love?
             <br />
@@ -581,7 +579,7 @@ const Index = () => {
           <p className="text-center text-muted-foreground mb-12 max-w-md mx-auto">
             Browse the month and use Join when an event feels like your kind of night.
           </p>
-          <EventCalendar targetedEvent={targetedEvent} />
+          <EventCalendar events={events} targetedEvent={targetedEvent} />
         </div>
       </section>
 
