@@ -15,10 +15,11 @@ import {
 import "./dashboard.css";
 
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const OUTPUT_STORAGE_KEY = "getloveyvr-output-progress-v1";
-const EVENT_OWNER_STORAGE_KEY = "getloveyvr-event-owners-v1";
-const TASK_OWNER_STORAGE_KEY = "getloveyvr-task-owners-v1";
-const TASK_TEXT_STORAGE_KEY = "getloveyvr-task-text-v1";
+const SHARED_STATE_VERSION = "2026-summer-refresh";
+const OUTPUT_STORAGE_KEY = `getloveyvr-output-progress-${SHARED_STATE_VERSION}`;
+const EVENT_OWNER_STORAGE_KEY = `getloveyvr-event-owners-${SHARED_STATE_VERSION}`;
+const TASK_OWNER_STORAGE_KEY = `getloveyvr-task-owners-${SHARED_STATE_VERSION}`;
+const TASK_TEXT_STORAGE_KEY = `getloveyvr-task-text-${SHARED_STATE_VERSION}`;
 const PRIMARY_MASTER_GOAT_EMAIL = getPrimaryMasterGoatEmail();
 
 const OWNER_TONES = {
@@ -698,12 +699,18 @@ export default function DashboardBoard({
 
     return subscribeToSharedState(
       (data) => {
-        if (data) {
+        if (data?.stateVersion === SHARED_STATE_VERSION) {
           setOutputState(normalizeStoredOutputState(data.outputState));
           setEventOwnerState(normalizeStoredAssignmentState(data.eventOwnerState));
           setTaskOwnerState(normalizeStoredAssignmentState(data.taskOwnerState));
           setTaskTextState(normalizeStoredTextState(data.taskTextState));
           setSharedDocExists(true);
+        } else if (data) {
+          setOutputState({});
+          setEventOwnerState({});
+          setTaskOwnerState({});
+          setTaskTextState({});
+          setSharedDocExists(false);
         } else {
           setSharedDocExists(false);
         }
@@ -762,6 +769,7 @@ export default function DashboardBoard({
 
     saveSharedState(
       {
+        stateVersion: SHARED_STATE_VERSION,
         outputState,
         eventOwnerState,
         taskOwnerState,
@@ -820,6 +828,7 @@ export default function DashboardBoard({
 
     await saveSharedState(
       {
+        stateVersion: SHARED_STATE_VERSION,
         outputState: nextOutputState,
         eventOwnerState: nextEventOwnerState,
         taskOwnerState: nextTaskOwnerState,

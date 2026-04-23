@@ -239,6 +239,15 @@ export const VACATION_BLOCKS = [
     end: "2026-04-15",
     details: "Return day",
   },
+  {
+    id: "stephy-gone-summer",
+    owner: "Stephy",
+    label: "Stephanie gone",
+    tone: "amber",
+    start: "2026-07-24",
+    end: "2026-09-05",
+    details: "Away July 24 through September 5",
+  },
 ];
 
 export function buildBoardEvents(schedule) {
