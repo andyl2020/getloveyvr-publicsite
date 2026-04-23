@@ -14,7 +14,7 @@ import {
 import { Link, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { type EventScheduleEntry, getEventCalendarParts } from "@/data/eventSchedule";
+import { type EventScheduleEntry, getEventCalendarParts, isSinglesSeriesEvent } from "@/data/eventSchedule";
 import { useEventSchedule } from "@/hooks/useEventSchedule";
 import NotFound from "./NotFound";
 
@@ -69,8 +69,16 @@ function getEventForDay(events: EventScheduleEntry[], day: number, month: number
   });
 }
 
-function getEventLabel(event: EventScheduleEntry, totalEvents: number) {
-  return `Event ${event.seriesNumber} of ${totalEvents}`;
+function getSinglesSeriesCount(events: EventScheduleEntry[]) {
+  return events.filter(isSinglesSeriesEvent).length;
+}
+
+function getEventLabel(event: EventScheduleEntry, totalSinglesEvents: number) {
+  if (isSinglesSeriesEvent(event)) {
+    return `Singles Event ${event.seriesNumber} of ${totalSinglesEvents}`;
+  }
+
+  return "Friends Event";
 }
 
 function findEventBySlug(events: EventScheduleEntry[], eventSlug?: string) {
@@ -130,6 +138,7 @@ const EventCalendar = ({
   const suppressNextClickRef = useRef(false);
 
   const days = getCalendarDays(currentMonth, currentYear);
+  const totalSinglesEvents = getSinglesSeriesCount(events);
   const monthEvents = events.filter((event) => {
     const parts = getEventCalendarParts(event.eventDate);
     return parts.month === currentMonth && parts.year === currentYear;
@@ -377,7 +386,7 @@ const EventCalendar = ({
                   <span className="text-2xl">{event.emoji}</span>
                   <div className="flex-1">
                     <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                      {getEventLabel(event, events.length)}
+                      {getEventLabel(event, totalSinglesEvents)}
                     </p>
                     <p className="font-heading font-medium">{event.title}</p>
                     <p className="text-xs text-muted-foreground">
@@ -425,6 +434,7 @@ const Index = () => {
   const location = useLocation();
   const { eventSlug } = useParams();
   const { schedule: events } = useEventSchedule();
+  const totalSinglesEvents = getSinglesSeriesCount(events);
   const targetedEvent = findEventBySlug(events, eventSlug);
 
   useEffect(() => {
@@ -515,7 +525,7 @@ const Index = () => {
             in real life.
           </h1>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto mb-8">
-            {events.length} activity-based singles events in Vancouver.
+            {totalSinglesEvents} activity-based singles events in Vancouver.
             <br />
             Will you find love?
             <br />

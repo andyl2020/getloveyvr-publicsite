@@ -451,11 +451,25 @@ button {
   margin-top: 1rem;
 }
 
-.month-switcher,
+.month-switcher {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.month-chip-row,
 .filter-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
+}
+
+.month-chip-row {
+  flex: 1 1 auto;
+}
+
+.month-nav-button {
+  flex: 0 0 auto;
 }
 
 .switch-chip {
@@ -626,6 +640,19 @@ button {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
+}
+
+.availability-chip {
+  gap: 0.45rem;
+}
+
+.availability-chip-label {
+  font-weight: 800;
+}
+
+.availability-chip-range {
+  color: inherit;
+  opacity: 0.92;
 }
 
 .availability-empty {

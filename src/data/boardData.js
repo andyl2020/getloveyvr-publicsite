@@ -1,4 +1,4 @@
-import { normalizeEventSchedule } from "@/data/eventSchedule";
+import { isSinglesSeriesEvent, normalizeEventSchedule } from "@/data/eventSchedule";
 
 export const OWNER_OPTIONS = ["Andy", "Sandy", "Patrice", "Stephy"];
 
@@ -139,9 +139,19 @@ function buildMilestones(eventDate, completedMilestones = {}) {
   ];
 }
 
-function createEvent({ id, seriesNumber, theme, owner, eventDate, tentative, completedMilestones = {} }) {
+function createEvent({
+  id,
+  seriesType,
+  seriesNumber,
+  theme,
+  owner,
+  eventDate,
+  tentative,
+  completedMilestones = {},
+}) {
   return {
     id,
+    seriesType,
     seriesNumber,
     theme,
     owner,
@@ -186,77 +196,48 @@ export const CONTENT_TYPE_GUIDE = [
 
 export const VACATION_BLOCKS = [
   {
-    id: "sandy-gone",
+    id: "sandy-away",
     owner: "Sandy",
-    label: "Sandy gone",
+    label: "Away",
     tone: "rose",
     start: "2026-04-01",
     end: "2026-04-12",
-    details: "Away through April 12",
   },
   {
-    id: "sandy-back",
-    owner: "Sandy",
-    label: "Sandy back",
-    tone: "rose",
-    end: "2026-04-13",
-    start: "2026-04-13",
-    details: "Return day",
-  },
-  {
-    id: "patrice-gone",
+    id: "patrice-away",
     owner: "Patrice",
-    label: "Patrice gone",
+    label: "Away",
     tone: "cyan",
     start: "2026-03-26",
     end: "2026-04-07",
-    details: "Away through April 7",
   },
   {
-    id: "patrice-return",
-    owner: "Patrice",
-    label: "Patrice back",
-    tone: "cyan",
-    start: "2026-04-08",
-    end: "2026-04-08",
-    details: "Return day",
-  },
-  {
-    id: "andy-sf",
+    id: "andy-away",
     owner: "Andy",
-    label: "Andy SF",
+    label: "Away",
     tone: "mint",
     start: "2026-04-04",
     end: "2026-04-14",
-    details: "Away in SF through April 14",
   },
   {
-    id: "andy-back",
-    owner: "Andy",
-    label: "Andy back",
-    tone: "mint",
-    start: "2026-04-15",
-    end: "2026-04-15",
-    details: "Return day",
-  },
-  {
-    id: "stephy-gone-summer",
+    id: "stephy-away-summer",
     owner: "Stephy",
-    label: "Stephanie gone",
+    label: "Away",
     tone: "amber",
     start: "2026-07-24",
     end: "2026-09-05",
-    details: "Away July 24 through September 5",
   },
 ];
 
 export function buildBoardEvents(schedule) {
   const normalizedSchedule = normalizeEventSchedule(schedule);
+  let friendsSeriesNumber = 0;
 
   return normalizedSchedule.map((event) =>
     createEvent({
       id: event.id,
-      seriesNumber: `${event.seriesNumber}/${normalizedSchedule.length}`,
+      seriesType: event.seriesType,
+      seriesNumber: isSinglesSeriesEvent(event) ? event.seriesNumber : (friendsSeriesNumber += 1),
       theme: event.boardTheme,
       owner: event.defaultOwner ?? "",
       eventDate: event.eventDate,

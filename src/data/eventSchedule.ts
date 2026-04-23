@@ -2,7 +2,8 @@ export interface EventScheduleEntry {
   id: number;
   slug: string;
   shareSlug: string;
-  seriesNumber: number;
+  seriesType: "singles" | "friends";
+  seriesNumber?: number;
   title: string;
   boardTheme: string;
   eventDate: string;
@@ -20,6 +21,7 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     id: 1,
     slug: "boxing",
     shareSlug: "e1-boxing",
+    seriesType: "singles",
     seriesNumber: 1,
     title: "Boxing",
     boardTheme: "Boxing",
@@ -33,6 +35,7 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     id: 2,
     slug: "improv",
     shareSlug: "e2-improv",
+    seriesType: "singles",
     seriesNumber: 2,
     title: "Improv",
     boardTheme: "Improv",
@@ -45,11 +48,12 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
   {
     id: 3,
     slug: "karaoke-friends-edition",
-    shareSlug: "e3-karaoke-friends-edition",
-    seriesNumber: 3,
+    shareSlug: "f1-karaoke-friends-edition",
+    seriesType: "friends",
     title: "Karaoke (Friends Edition)",
     boardTheme: "Karaoke (Friends Edition)",
     eventDate: "2026-05-20",
+    joinUrl: "https://flocksocial.app/events/97f405cf-3602-4093-aa17-422279eda167",
     emoji: "\u{1F3A4}",
     colorClass: "bg-event-social",
     defaultOwner: "Stephy",
@@ -57,8 +61,9 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
   {
     id: 4,
     slug: "costco-singles",
-    shareSlug: "e4-costco-singles",
-    seriesNumber: 4,
+    shareSlug: "e3-costco-singles",
+    seriesType: "singles",
+    seriesNumber: 3,
     title: "Costco Singles Event",
     boardTheme: "Costco Singles Event",
     eventDate: "2026-05-24",
@@ -68,21 +73,36 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
   },
   {
     id: 5,
-    slug: "karaoke-again-friends-edition",
-    shareSlug: "e5-karaoke-again-friends-edition",
-    seriesNumber: 5,
-    title: "Karaoke Again (Friends Edition)",
-    boardTheme: "Karaoke Again (Friends Edition)",
-    eventDate: "2026-06-17",
-    emoji: "\u{1F3A4}",
-    colorClass: "bg-event-social",
-    defaultOwner: "Sandy",
+    slug: "art-wellness-singles",
+    shareSlug: "e4-art-wellness-singles",
+    seriesType: "singles",
+    seriesNumber: 4,
+    title: "Art Wellness for Singles (ft. Art Therapist)",
+    boardTheme: "Art Wellness for Singles (ft. Art Therapist)",
+    eventDate: "2026-06-07",
+    emoji: "\u{1F9D8}",
+    colorClass: "bg-event-painting",
+    tentative: true,
+    defaultOwner: "Stephy",
   },
   {
     id: 6,
+    slug: "karaoke-again-friends-edition",
+    shareSlug: "f2-karaoke",
+    seriesType: "friends",
+    title: "Karaoke",
+    boardTheme: "Karaoke",
+    eventDate: "2026-06-17",
+    emoji: "\u{1F3A4}",
+    colorClass: "bg-event-social",
+    defaultOwner: "Stephy",
+  },
+  {
+    id: 7,
     slug: "karaoke-singles-night",
-    shareSlug: "e6-karaoke-singles-night",
-    seriesNumber: 6,
+    shareSlug: "e5-karaoke-singles-night",
+    seriesType: "singles",
+    seriesNumber: 5,
     title: "Karaoke Singles Night",
     boardTheme: "Karaoke Singles Night",
     eventDate: "2026-06-28",
@@ -90,21 +110,36 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     colorClass: "bg-event-social",
   },
   {
-    id: 7,
-    slug: "art-wellness-singles",
-    shareSlug: "e7-art-wellness-singles",
-    seriesNumber: 7,
-    title: "Art Wellness with an Art Therapist",
-    boardTheme: "Art Wellness with an Art Therapist",
-    eventDate: "2026-07-07",
-    emoji: "\u{1F9D8}",
-    colorClass: "bg-event-painting",
+    id: 8,
+    slug: "event-6",
+    shareSlug: "e6-event",
+    seriesType: "singles",
+    seriesNumber: 6,
+    title: "TBD Event",
+    boardTheme: "TBD",
+    eventDate: "2026-07-19",
+    emoji: "\u{2728}",
+    colorClass: "bg-event-tbd",
     tentative: true,
   },
   {
-    id: 8,
+    id: 9,
+    slug: "event-7",
+    shareSlug: "e7-event",
+    seriesType: "singles",
+    seriesNumber: 7,
+    title: "TBD Event",
+    boardTheme: "TBD",
+    eventDate: "2026-08-09",
+    emoji: "\u{2728}",
+    colorClass: "bg-event-tbd",
+    tentative: true,
+  },
+  {
+    id: 10,
     slug: "event-8",
     shareSlug: "e8-event",
+    seriesType: "singles",
     seriesNumber: 8,
     title: "TBD Event",
     boardTheme: "TBD",
@@ -119,6 +154,10 @@ function normalizeNumber(value: unknown, fallback: number) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
+function normalizeOptionalNumber(value: unknown, fallback?: number) {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
 function normalizeBoolean(value: unknown, fallback = false) {
   return typeof value === "boolean" ? value : fallback;
 }
@@ -129,6 +168,10 @@ function normalizeString(value: unknown, fallback: string) {
 
 function normalizeOptionalString(value: unknown) {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+function normalizeSeriesType(value: unknown, fallback: EventScheduleEntry["seriesType"]) {
+  return value === "singles" || value === "friends" ? value : fallback;
 }
 
 export function normalizeIsoDate(value: unknown, fallback: string) {
@@ -163,7 +206,8 @@ function normalizeEntry(candidate: unknown, fallback: EventScheduleEntry): Event
     id: normalizeNumber(raw.id, fallback.id),
     slug: normalizeString(raw.slug, fallback.slug),
     shareSlug: normalizeString(raw.shareSlug, fallback.shareSlug),
-    seriesNumber: normalizeNumber(raw.seriesNumber, fallback.seriesNumber),
+    seriesType: normalizeSeriesType(raw.seriesType, fallback.seriesType),
+    seriesNumber: normalizeOptionalNumber(raw.seriesNumber, fallback.seriesNumber),
     title: normalizeString(raw.title, fallback.title),
     boardTheme: normalizeString(raw.boardTheme, fallback.boardTheme),
     eventDate: normalizeIsoDate(raw.eventDate, fallback.eventDate),
@@ -205,6 +249,10 @@ export function serializeEventSchedule(schedule: EventScheduleEntry[]) {
   return normalizeEventSchedule(schedule).map((event) => ({
     ...event,
   }));
+}
+
+export function isSinglesSeriesEvent(event: EventScheduleEntry) {
+  return event.seriesType === "singles" && typeof event.seriesNumber === "number";
 }
 
 export function getEventCalendarParts(eventDate: string) {

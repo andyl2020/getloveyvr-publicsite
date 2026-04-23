@@ -15,7 +15,7 @@ import {
 import "./dashboard.css";
 
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const SHARED_STATE_VERSION = "2026-summer-refresh";
+const SHARED_STATE_VERSION = "2026-series-split";
 const OUTPUT_STORAGE_KEY = `getloveyvr-output-progress-${SHARED_STATE_VERSION}`;
 const EVENT_OWNER_STORAGE_KEY = `getloveyvr-event-owners-${SHARED_STATE_VERSION}`;
 const TASK_OWNER_STORAGE_KEY = `getloveyvr-task-owners-${SHARED_STATE_VERSION}`;
@@ -75,6 +75,21 @@ function getTodayKey() {
 
 function monthKey(value) {
   return value.slice(0, 7);
+}
+
+function monthKeysInRange(startDate, endDate) {
+  const start = parseDate(startDate);
+  const end = parseDate(endDate);
+  const cursor = new Date(start.getFullYear(), start.getMonth(), 1, 12, 0, 0);
+  const limit = new Date(end.getFullYear(), end.getMonth(), 1, 12, 0, 0);
+  const keys = [];
+
+  while (cursor <= limit) {
+    keys.push(monthKey(dateKey(cursor)));
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+
+  return keys;
 }
 
 function daysBetween(left, right) {
@@ -161,8 +176,14 @@ function buildVacationLookup(blocks) {
   return lookup;
 }
 
-function buildMonthOptions(events, todayKey) {
-  return [...new Set([monthKey(todayKey), ...events.map((event) => monthKey(event.eventDate))])].sort();
+function buildMonthOptions(events, vacationBlocks, todayKey) {
+  return [
+    ...new Set([
+      monthKey(todayKey),
+      ...events.map((event) => monthKey(event.eventDate)),
+      ...vacationBlocks.flatMap((block) => monthKeysInRange(block.start, block.end)),
+    ]),
+  ].sort();
 }
 
 function normalizeAssignee(value) {
@@ -333,16 +354,24 @@ function milestoneDeadlineLabel(dateString, done, todayKey) {
 }
 
 function eventCode(event) {
-  return `E${event.id}`;
+  if (typeof event.seriesNumber !== "number") {
+    return `EV${event.id}`;
+  }
+
+  return `${event.seriesType === "friends" ? "F" : "E"}${event.seriesNumber}`;
 }
 
 function eventDisplayName(event) {
-  return `Singles Event #${event.id}: ${event.theme}`;
+  if (typeof event.seriesNumber !== "number") {
+    return event.theme;
+  }
+
+  const label = event.seriesType === "friends" ? "Friends Event" : "Singles Event";
+  return `${label} #${event.seriesNumber}: ${event.theme}`;
 }
 
 function directoryEventName(event) {
-  const label = event.id === 1 ? `${event.theme} event` : event.theme;
-  return `${event.code}: ${label}`;
+  return `${event.code}: ${event.theme}`;
 }
 
 function clipVacationBlockToMonth(block, selectedMonth) {
@@ -358,8 +387,8 @@ function clipVacationBlockToMonth(block, selectedMonth) {
 
   return {
     ...block,
-    start,
-    end,
+    visibleStart: start,
+    visibleEnd: end,
   };
 }
 
@@ -545,7 +574,7 @@ export default function DashboardBoard({
   const scheduleSeededRef = useRef(false);
   const canEdit = accessRole === "master-goat" || !firebaseEnabled;
 
-  const monthOptions = buildMonthOptions(boardEvents, todayKey);
+  const monthOptions = buildMonthOptions(boardEvents, VACATION_BLOCKS, todayKey);
   const vacationLookup = buildVacationLookup(VACATION_BLOCKS);
   const eventModels = buildEventModels(
     boardEvents,
@@ -571,6 +600,11 @@ export default function DashboardBoard({
   const alerts = buildAlerts(visibleEvents);
   const criticalCount = alerts.filter((alert) => alert.severity === "critical").length;
   const warningCount = alerts.filter((alert) => alert.severity === "warning").length;
+  const selectedMonthIndex = monthOptions.indexOf(selectedMonth);
+  const previousMonth = selectedMonthIndex > 0 ? monthOptions[selectedMonthIndex - 1] : null;
+  const nextMonth = selectedMonthIndex >= 0 && selectedMonthIndex < monthOptions.length - 1
+    ? monthOptions[selectedMonthIndex + 1]
+    : null;
   const availabilityRows = OWNER_OPTIONS.map((owner) => ({
     owner,
     tone: ownerTone(owner),
@@ -599,6 +633,16 @@ export default function DashboardBoard({
       setSelectedEventId(candidates[0]?.id ?? null);
     }
   }, [monthEvents, selectedEventId, visibleEvents]);
+
+  useEffect(() => {
+    if (monthOptions.length === 0) {
+      return;
+    }
+
+    if (!monthOptions.includes(selectedMonth)) {
+      setSelectedMonth(monthOptions[0]);
+    }
+  }, [monthOptions, selectedMonth]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -797,6 +841,15 @@ export default function DashboardBoard({
   function focusEvent(eventId, eventDate) {
     setSelectedMonth(monthKey(eventDate));
     setSelectedEventId(eventId);
+  }
+
+  function jumpToAdjacentMonth(direction) {
+    if (direction === "previous" && previousMonth) {
+      setSelectedMonth(previousMonth);
+    }
+    if (direction === "next" && nextMonth) {
+      setSelectedMonth(nextMonth);
+    }
   }
 
   function toggleFilter(filterId) {
@@ -1053,16 +1106,36 @@ export default function DashboardBoard({
 
       <section className="control-bar">
         <div className="month-switcher">
-          {monthOptions.map((month) => (
-            <button
-              key={month}
-              type="button"
-              className={month === selectedMonth ? "switch-chip active" : "switch-chip"}
-              onClick={() => setSelectedMonth(month)}
-            >
-              {formatMonthLabel(month)}
-            </button>
-          ))}
+          <button
+            type="button"
+            className="nav-button month-nav-button"
+            onClick={() => jumpToAdjacentMonth("previous")}
+            disabled={!previousMonth}
+            aria-label="Previous month"
+          >
+            &lt;
+          </button>
+          <div className="month-chip-row">
+            {monthOptions.map((month) => (
+              <button
+                key={month}
+                type="button"
+                className={month === selectedMonth ? "switch-chip active" : "switch-chip"}
+                onClick={() => setSelectedMonth(month)}
+              >
+                {formatMonthLabel(month)}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="nav-button month-nav-button"
+            onClick={() => jumpToAdjacentMonth("next")}
+            disabled={!nextMonth}
+            aria-label="Next month"
+          >
+            &gt;
+          </button>
         </div>
 
         <div className="filter-row">
@@ -1103,7 +1176,8 @@ export default function DashboardBoard({
                         key={block.id}
                         className={`availability-chip tone-${block.tone}`}
                       >
-                        {block.label} - {formatDateRange(block.start, block.end)}
+                        <span className="availability-chip-label">{block.label}</span>
+                        <span className="availability-chip-range">{formatDateRange(block.start, block.end)}</span>
                       </span>
                     ))
                   )}
