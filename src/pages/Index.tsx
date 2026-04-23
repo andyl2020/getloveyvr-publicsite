@@ -479,7 +479,7 @@ const Index = () => {
           </nav>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="outline" asChild className="rounded-full px-4">
-              <Link to="/goat-board">
+              <Link to="/dashboard">
                 <DoorOpen className="mr-2 h-4 w-4" />
                 Login
               </Link>

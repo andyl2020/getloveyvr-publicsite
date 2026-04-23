@@ -17,6 +17,7 @@ const App = () => (
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/dashboard" element={<GoatBoard />} />
           <Route path="/goat-board" element={<GoatBoard />} />
           <Route path="/:eventSlug" element={<Index />} />
           <Route path="/events/:eventSlug" element={<Index />} />
