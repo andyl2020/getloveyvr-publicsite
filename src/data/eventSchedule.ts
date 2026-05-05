@@ -13,6 +13,7 @@ export interface EventScheduleEntry {
   emoji: string;
   colorClass: string;
   tentative?: boolean;
+  archived?: boolean;
   defaultOwner?: string;
 }
 
@@ -63,12 +64,12 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     slug: "costco-singles",
     shareSlug: "e3-costco-singles",
     seriesType: "singles",
-    seriesNumber: 3,
     title: "Costco Singles Event",
     boardTheme: "Costco Singles Event",
     eventDate: "2026-05-24",
     emoji: "\u{1F6D2}",
     colorClass: "bg-event-social",
+    archived: true,
     defaultOwner: "Sandy",
   },
   {
@@ -79,10 +80,9 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     seriesNumber: 4,
     title: "Art Wellness for Singles (ft. Art Therapist)",
     boardTheme: "Art Wellness for Singles (ft. Art Therapist)",
-    eventDate: "2026-06-07",
+    eventDate: "2026-06-28",
     emoji: "\u{1F9D8}",
     colorClass: "bg-event-painting",
-    tentative: true,
     defaultOwner: "Stephy",
   },
   {
@@ -90,8 +90,8 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     slug: "karaoke-again-friends-edition",
     shareSlug: "f2-karaoke",
     seriesType: "friends",
-    title: "Karaoke",
-    boardTheme: "Karaoke",
+    title: "Karaoke (Friends Edition)",
+    boardTheme: "Karaoke (Friends Edition)",
     eventDate: "2026-06-17",
     emoji: "\u{1F3A4}",
     colorClass: "bg-event-social",
@@ -102,19 +102,19 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     slug: "karaoke-singles-night",
     shareSlug: "e5-karaoke-singles-night",
     seriesType: "singles",
-    seriesNumber: 5,
     title: "Karaoke Singles Night",
     boardTheme: "Karaoke Singles Night",
     eventDate: "2026-06-28",
     emoji: "\u{1F49E}",
     colorClass: "bg-event-social",
+    archived: true,
   },
   {
     id: 8,
     slug: "event-6",
     shareSlug: "e6-event",
     seriesType: "singles",
-    seriesNumber: 6,
+    seriesNumber: 5,
     title: "TBD Event",
     boardTheme: "TBD",
     eventDate: "2026-07-19",
@@ -127,7 +127,7 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     slug: "event-7",
     shareSlug: "e7-event",
     seriesType: "singles",
-    seriesNumber: 7,
+    seriesNumber: 6,
     title: "TBD Event",
     boardTheme: "TBD",
     eventDate: "2026-08-09",
@@ -140,13 +140,25 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     slug: "event-8",
     shareSlug: "e8-event",
     seriesType: "singles",
-    seriesNumber: 8,
+    seriesNumber: 7,
     title: "TBD Event",
     boardTheme: "TBD",
     eventDate: "2026-08-30",
     emoji: "\u{2728}",
     colorClass: "bg-event-tbd",
     tentative: true,
+  },
+  {
+    id: 11,
+    slug: "board-games-deep-convos",
+    shareSlug: "e3-board-games-deep-convos",
+    seriesType: "singles",
+    seriesNumber: 3,
+    title: "Board Games + Deep Convos",
+    boardTheme: "Board Games + Deep Convos",
+    eventDate: "2026-06-07",
+    emoji: "\u{1F3B2}",
+    colorClass: "bg-event-social",
   },
 ];
 
@@ -221,6 +233,8 @@ function normalizeEntry(candidate: unknown, fallback: EventScheduleEntry): Event
     colorClass: normalizeString(raw.colorClass, fallback.colorClass),
     tentative:
       raw.tentative === undefined ? fallback.tentative : normalizeBoolean(raw.tentative, false),
+    archived:
+      raw.archived === undefined ? fallback.archived : normalizeBoolean(raw.archived, false),
     defaultOwner: normalizeOptionalString(raw.defaultOwner) ?? fallback.defaultOwner,
   };
 }
@@ -249,6 +263,14 @@ export function serializeEventSchedule(schedule: EventScheduleEntry[]) {
   return normalizeEventSchedule(schedule).map((event) => ({
     ...event,
   }));
+}
+
+export function isArchivedEvent(event: EventScheduleEntry) {
+  return event.archived === true;
+}
+
+export function getActiveEventSchedule(events: EventScheduleEntry[]) {
+  return events.filter((event) => !isArchivedEvent(event));
 }
 
 export function isSinglesSeriesEvent(event: EventScheduleEntry) {

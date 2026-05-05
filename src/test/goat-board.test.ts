@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { buildBoardEvents } from "@/data/boardData";
-import { DEFAULT_EVENT_SCHEDULE, isSinglesSeriesEvent, normalizeEventSchedule } from "@/data/eventSchedule";
+import {
+  DEFAULT_EVENT_SCHEDULE,
+  getActiveEventSchedule,
+  isArchivedEvent,
+  isSinglesSeriesEvent,
+  normalizeEventSchedule,
+} from "@/data/eventSchedule";
 import { parseEmailList, resolveGoatRole } from "@/lib/goatAccess";
 
 describe("goat access", () => {
@@ -35,21 +41,39 @@ describe("shared event schedule", () => {
     expect(finalCheckMilestone?.date).toBe("2026-05-04");
   });
 
-  it("keeps friends events outside the 8-event singles series", () => {
+  it("keeps archived singles off the public schedule while preserving them on the board", () => {
     const boardEvents = buildBoardEvents(DEFAULT_EVENT_SCHEDULE);
-    const singlesSeries = DEFAULT_EVENT_SCHEDULE.filter(isSinglesSeriesEvent);
+    const publicEvents = getActiveEventSchedule(DEFAULT_EVENT_SCHEDULE);
+    const singlesSeries = publicEvents.filter(isSinglesSeriesEvent);
+    const archivedEvents = DEFAULT_EVENT_SCHEDULE.filter(isArchivedEvent);
     const firstFriendsEvent = boardEvents.find((event) => event.id === 3);
-    const thirdSinglesEvent = boardEvents.find((event) => event.id === 4);
+    const boardGamesEvent = boardEvents.find((event) => event.id === 11);
+    const artWellnessEvent = boardEvents.find((event) => event.id === 5);
+    const costcoEvent = boardEvents.find((event) => event.id === 4);
 
-    expect(singlesSeries).toHaveLength(8);
+    expect(singlesSeries).toHaveLength(7);
+    expect(archivedEvents.map((event) => event.id)).toEqual([4, 7]);
     expect(firstFriendsEvent).toMatchObject({
       seriesType: "friends",
       seriesNumber: 1,
     });
-    expect(thirdSinglesEvent).toMatchObject({
+    expect(boardGamesEvent).toMatchObject({
       seriesType: "singles",
       seriesNumber: 3,
+      theme: "Board Games + Deep Convos",
+      archived: false,
+    });
+    expect(artWellnessEvent).toMatchObject({
+      seriesType: "singles",
+      seriesNumber: 4,
+      theme: "Art Wellness for Singles (ft. Art Therapist)",
+      eventDate: "2026-06-28",
+    });
+    expect(costcoEvent).toMatchObject({
+      seriesType: "singles",
+      seriesNumber: undefined,
       theme: "Costco Singles Event",
+      archived: true,
     });
   });
 });

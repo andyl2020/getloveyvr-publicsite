@@ -14,7 +14,12 @@ import {
 import { Link, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { type EventScheduleEntry, getEventCalendarParts, isSinglesSeriesEvent } from "@/data/eventSchedule";
+import {
+  getActiveEventSchedule,
+  type EventScheduleEntry,
+  getEventCalendarParts,
+  isSinglesSeriesEvent,
+} from "@/data/eventSchedule";
 import { useEventSchedule } from "@/hooks/useEventSchedule";
 import NotFound from "./NotFound";
 
@@ -433,7 +438,8 @@ const EventCalendar = ({
 const Index = () => {
   const location = useLocation();
   const { eventSlug } = useParams();
-  const { schedule: events } = useEventSchedule();
+  const { schedule } = useEventSchedule();
+  const events = getActiveEventSchedule(schedule);
   const totalSinglesEvents = getSinglesSeriesCount(events);
   const targetedEvent = findEventBySlug(events, eventSlug);
 

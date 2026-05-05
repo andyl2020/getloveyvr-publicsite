@@ -8,6 +8,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "dashboard:move-state": "node scripts/move-dashboard-event-state.mjs",
+    "dashboard:publish-schedule": "node scripts/publish-event-schedule.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",

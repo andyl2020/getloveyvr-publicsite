@@ -863,6 +863,33 @@ button {
   gap: 0.7rem;
 }
 
+.archived-directory {
+  margin-top: 1rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+
+.archived-directory summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  cursor: pointer;
+  list-style: none;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.archived-directory summary::-webkit-details-marker {
+  display: none;
+}
+
+.archived-directory-list,
+.archived-empty-state {
+  margin-top: 0.85rem;
+}
+
 .detail-summary {
   flex-wrap: wrap;
   margin-bottom: 1rem;

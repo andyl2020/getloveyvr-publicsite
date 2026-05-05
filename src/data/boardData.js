@@ -147,6 +147,7 @@ function createEvent({
   owner,
   eventDate,
   tentative,
+  archived,
   completedMilestones = {},
 }) {
   return {
@@ -157,6 +158,7 @@ function createEvent({
     owner,
     eventDate,
     tentative,
+    archived,
     milestones: buildMilestones(eventDate, completedMilestones),
   };
 }
@@ -237,11 +239,17 @@ export function buildBoardEvents(schedule) {
     createEvent({
       id: event.id,
       seriesType: event.seriesType,
-      seriesNumber: isSinglesSeriesEvent(event) ? event.seriesNumber : (friendsSeriesNumber += 1),
+      seriesNumber:
+        event.seriesType === "friends"
+          ? (friendsSeriesNumber += 1)
+          : isSinglesSeriesEvent(event)
+            ? event.seriesNumber
+            : undefined,
       theme: event.boardTheme,
       owner: event.defaultOwner ?? "",
       eventDate: event.eventDate,
       tentative: event.tentative ?? false,
+      archived: event.archived ?? false,
       completedMilestones: DEFAULT_COMPLETED_MILESTONES_BY_EVENT_ID[event.id] ?? {},
     }),
   );

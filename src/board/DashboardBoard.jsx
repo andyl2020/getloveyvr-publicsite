@@ -321,6 +321,19 @@ function createDefaultFilters() {
   );
 }
 
+function filterEvents(events, filters) {
+  return events.filter((event) => {
+    const activeOwnerFilter = event.owner ? filters[ownerFilterId(event.owner)] : true;
+    if (activeOwnerFilter === false) {
+      return false;
+    }
+    if (filters.issuesOnly && event.issueCount === 0) {
+      return false;
+    }
+    return true;
+  });
+}
+
 function milestoneStatus(dateString, done, todayKey) {
   if (done) {
     return "done";
@@ -549,6 +562,7 @@ export default function DashboardBoard({
 }) {
   const firebaseEnabled = isFirebaseEnabled();
   const boardEvents = buildBoardEvents(schedule);
+  const activeBoardEvents = boardEvents.filter((event) => !event.archived);
   const [todayKey, setTodayKey] = useState(() => getTodayKey());
   const [selectedMonth, setSelectedMonth] = useState(() => monthKey(getTodayKey()));
   const [selectedEventId, setSelectedEventId] = useState(null);
@@ -574,7 +588,7 @@ export default function DashboardBoard({
   const scheduleSeededRef = useRef(false);
   const canEdit = accessRole === "master-goat" || !firebaseEnabled;
 
-  const monthOptions = buildMonthOptions(boardEvents, VACATION_BLOCKS, todayKey);
+  const monthOptions = buildMonthOptions(activeBoardEvents, VACATION_BLOCKS, todayKey);
   const vacationLookup = buildVacationLookup(VACATION_BLOCKS);
   const eventModels = buildEventModels(
     boardEvents,
@@ -585,16 +599,13 @@ export default function DashboardBoard({
     taskTextState,
     todayKey,
   );
-  const visibleEvents = eventModels.filter((event) => {
-    const activeOwnerFilter = event.owner ? filters[ownerFilterId(event.owner)] : true;
-    if (activeOwnerFilter === false) {
-      return false;
-    }
-    if (filters.issuesOnly && event.issueCount === 0) {
-      return false;
-    }
-    return true;
-  });
+  const activeEventModels = eventModels.filter((event) => !event.archived);
+  const archivedEventModels = eventModels.filter((event) => event.archived);
+  const visibleEvents = filterEvents(activeEventModels, filters);
+  const archivedVisibleEvents = filterEvents(archivedEventModels, filters);
+  const allVisibleEvents = [...visibleEvents, ...archivedVisibleEvents].sort((left, right) =>
+    left.eventDate.localeCompare(right.eventDate),
+  );
   const monthEvents = visibleEvents.filter((event) => monthKey(event.eventDate) === selectedMonth);
   const calendarCells = buildMonthGrid(selectedMonth);
   const alerts = buildAlerts(visibleEvents);
@@ -614,25 +625,28 @@ export default function DashboardBoard({
       .filter(Boolean),
   }));
   const selectedEvent =
-    visibleEvents.find((event) => event.id === selectedEventId) ??
+    allVisibleEvents.find((event) => event.id === selectedEventId) ??
     monthEvents[0] ??
     visibleEvents[0] ??
+    archivedVisibleEvents[0] ??
     null;
   const selectedEventIndex = selectedEvent
-    ? visibleEvents.findIndex((event) => event.id === selectedEvent.id)
+    ? allVisibleEvents.findIndex((event) => event.id === selectedEvent.id)
     : -1;
-  const previousEvent = selectedEventIndex > 0 ? visibleEvents[selectedEventIndex - 1] : null;
+  const previousEvent = selectedEventIndex > 0 ? allVisibleEvents[selectedEventIndex - 1] : null;
   const nextEvent =
-    selectedEventIndex >= 0 && selectedEventIndex < visibleEvents.length - 1
-      ? visibleEvents[selectedEventIndex + 1]
+    selectedEventIndex >= 0 && selectedEventIndex < allVisibleEvents.length - 1
+      ? allVisibleEvents[selectedEventIndex + 1]
       : null;
 
   useEffect(() => {
-    const candidates = monthEvents.length > 0 ? monthEvents : visibleEvents;
-    if (!selectedEventId || !candidates.some((event) => event.id === selectedEventId)) {
-      setSelectedEventId(candidates[0]?.id ?? null);
+    if (selectedEventId && allVisibleEvents.some((event) => event.id === selectedEventId)) {
+      return;
     }
-  }, [monthEvents, selectedEventId, visibleEvents]);
+
+    const candidates = monthEvents.length > 0 ? monthEvents : allVisibleEvents;
+    setSelectedEventId(candidates[0]?.id ?? null);
+  }, [allVisibleEvents, monthEvents, selectedEventId]);
 
   useEffect(() => {
     if (monthOptions.length === 0) {
@@ -1056,7 +1070,8 @@ export default function DashboardBoard({
         </div>
         <div className="header-meta">
           <span>{formatDayLabel(todayKey)}</span>
-          <span>{visibleEvents.length} visible events</span>
+          <span>{visibleEvents.length} current events</span>
+          <span>{archivedVisibleEvents.length} archived hidden</span>
           <span>{alerts.length === 0 ? "All clear" : `${alerts.length} alerts`}</span>
         </div>
       </div>
@@ -1299,6 +1314,7 @@ export default function DashboardBoard({
                   <span className={`pill ${toneForEvent(selectedEvent)}`}>
                     {SEVERITY_META[selectedEvent.severity].label}
                   </span>
+                  {selectedEvent.archived && <span className="pill tone-neutral">Archived</span>}
                   <span className="detail-date">{formatDayLabel(selectedEvent.eventDate)}</span>
                 </div>
 
@@ -1592,7 +1608,7 @@ export default function DashboardBoard({
                 </div>
               </>
             ) : (
-              <div className="empty-state">No events match the current filters.</div>
+              <div className="empty-state">No current or archived events match the current filters.</div>
             )}
           </div>
 
@@ -1604,29 +1620,74 @@ export default function DashboardBoard({
               </div>
             </div>
 
-            <div className="directory-list">
-              {visibleEvents.map((event) => (
-                <button
-                  key={event.id}
-                  type="button"
-                  className={event.id === selectedEvent?.id ? "directory-item active" : "directory-item"}
-                  onClick={() => focusEvent(event.id, event.eventDate)}
-                >
-                  <div className="directory-item-topline">
-                    <span className={`pill ${toneForEvent(event)}`}>
-                      {event.issueCount > 0 ? `${event.issueCount} issue${event.issueCount === 1 ? "" : "s"}` : "On track"}
-                    </span>
+            {visibleEvents.length > 0 ? (
+              <div className="directory-list">
+                {visibleEvents.map((event) => (
+                  <button
+                    key={event.id}
+                    type="button"
+                    className={event.id === selectedEvent?.id ? "directory-item active" : "directory-item"}
+                    onClick={() => focusEvent(event.id, event.eventDate)}
+                  >
+                    <div className="directory-item-topline">
+                      <span className={`pill ${toneForEvent(event)}`}>
+                        {event.issueCount > 0 ? `${event.issueCount} issue${event.issueCount === 1 ? "" : "s"}` : "On track"}
+                      </span>
+                    </div>
+                    <strong>{directoryEventName(event)}</strong>
+                    <div className="directory-item-meta">
+                      <span className="meta-chip">{formatShortDate(event.eventDate)}</span>
+                      <span className={`meta-chip owner-chip owner-${ownerTone(event.owner)}`}>
+                        {displayOwnerLabel(event.owner)}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state">No current events match the active filters.</div>
+            )}
+
+            {archivedEventModels.length > 0 && (
+              <details className="archived-directory">
+                <summary>
+                  Archived events
+                  <span className="pill tone-neutral">{archivedVisibleEvents.length}</span>
+                </summary>
+                {archivedVisibleEvents.length > 0 ? (
+                  <div className="directory-list archived-directory-list">
+                    {archivedVisibleEvents.map((event) => (
+                      <button
+                        key={event.id}
+                        type="button"
+                        className={event.id === selectedEvent?.id ? "directory-item active" : "directory-item"}
+                        onClick={() => focusEvent(event.id, event.eventDate)}
+                      >
+                        <div className="directory-item-topline">
+                          <span className="pill tone-neutral">Archived</span>
+                          {event.issueCount > 0 && (
+                            <span className={`pill ${toneForEvent(event)}`}>
+                              {event.issueCount} issue{event.issueCount === 1 ? "" : "s"}
+                            </span>
+                          )}
+                        </div>
+                        <strong>{directoryEventName(event)}</strong>
+                        <div className="directory-item-meta">
+                          <span className="meta-chip">{formatShortDate(event.eventDate)}</span>
+                          <span className={`meta-chip owner-chip owner-${ownerTone(event.owner)}`}>
+                            {displayOwnerLabel(event.owner)}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
                   </div>
-                  <strong>{directoryEventName(event)}</strong>
-                  <div className="directory-item-meta">
-                    <span className="meta-chip">{formatShortDate(event.eventDate)}</span>
-                    <span className={`meta-chip owner-chip owner-${ownerTone(event.owner)}`}>
-                      {displayOwnerLabel(event.owner)}
-                    </span>
+                ) : (
+                  <div className="empty-state archived-empty-state">
+                    No archived events match the active filters.
                   </div>
-                </button>
-              ))}
-            </div>
+                )}
+              </details>
+            )}
           </div>
         </aside>
       </section>
