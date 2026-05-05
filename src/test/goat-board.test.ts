@@ -50,8 +50,9 @@ describe("shared event schedule", () => {
     const boardGamesEvent = boardEvents.find((event) => event.id === 11);
     const artWellnessEvent = boardEvents.find((event) => event.id === 5);
     const costcoEvent = boardEvents.find((event) => event.id === 4);
+    const finalSinglesEvent = boardEvents.find((event) => event.id === 12);
 
-    expect(singlesSeries).toHaveLength(7);
+    expect(singlesSeries).toHaveLength(8);
     expect(archivedEvents.map((event) => event.id)).toEqual([4, 7]);
     expect(firstFriendsEvent).toMatchObject({
       seriesType: "friends",
@@ -60,13 +61,13 @@ describe("shared event schedule", () => {
     expect(boardGamesEvent).toMatchObject({
       seriesType: "singles",
       seriesNumber: 3,
-      theme: "Board Games + Deep Convos",
+      theme: "Board Games + Deep Convos Singles Event",
       archived: false,
     });
     expect(artWellnessEvent).toMatchObject({
       seriesType: "singles",
       seriesNumber: 4,
-      theme: "Art Wellness for Singles (ft. Art Therapist)",
+      theme: "Art Wellness (ft. Art Therapist) Singles Event",
       eventDate: "2026-06-28",
     });
     expect(costcoEvent).toMatchObject({
@@ -74,6 +75,12 @@ describe("shared event schedule", () => {
       seriesNumber: undefined,
       theme: "Costco Singles Event",
       archived: true,
+    });
+    expect(finalSinglesEvent).toMatchObject({
+      seriesType: "singles",
+      seriesNumber: 8,
+      theme: "TBD Singles Event",
+      eventDate: "2026-09-20",
     });
   });
 });
