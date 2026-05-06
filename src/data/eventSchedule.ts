@@ -93,6 +93,7 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     title: "Karaoke (Friends Edition)",
     boardTheme: "Karaoke (Friends Edition)",
     eventDate: "2026-06-17",
+    joinUrl: "https://flocksocial.app/events/f9b17d44-c5b4-4fb2-bd9c-744da16b15bc",
     emoji: "\u{1F3A4}",
     colorClass: "bg-event-social",
     defaultOwner: "Stephy",
