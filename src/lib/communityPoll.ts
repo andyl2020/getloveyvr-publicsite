@@ -2,6 +2,7 @@ export const POLL_VOTED_STORAGE_KEY = "glyvr_voted";
 export const POLL_SESSION_STORAGE_KEY = "glyvr_session_id";
 export const BRING_BACK_OPTION_ID = "bring_back";
 export const BRING_BACK_OTHER_OPTION_ID = "other";
+export const MORE_FRIEND_EVENTS_OPTION_ID = "more_friend_events";
 
 export const POLL_OPTIONS = [
   {
@@ -31,13 +32,19 @@ export const POLL_OPTIONS = [
   {
     id: "baking",
     emoji: "🧁",
-    label: "Baking Event",
+    label: "Baking Singles Event",
     description: "",
   },
   {
     id: "karaoke_singles",
     emoji: "🎤",
     label: "Karaoke Singles Event",
+    description: "",
+  },
+  {
+    id: MORE_FRIEND_EVENTS_OPTION_ID,
+    emoji: "👥",
+    label: "More Friend Events",
     description: "",
   },
   {

@@ -18,6 +18,7 @@ service cloud.firestore {
         "costco",
         "baking",
         "karaoke_singles",
+        "more_friend_events",
         "bring_back",
       ];
     }
@@ -37,7 +38,13 @@ service cloud.firestore {
               && request.resource.data.write_in.size() <= 500
             )
           : request.resource.data.write_in == null
-        : request.resource.data.write_in == null;
+        : request.resource.data.option == "more_friend_events"
+          ? (
+              request.resource.data.write_in is string
+              && request.resource.data.write_in.size() > 0
+              && request.resource.data.write_in.size() <= 500
+            )
+          : request.resource.data.write_in == null;
     }
 
     function isValidVoteDocument() {

@@ -13,6 +13,7 @@ import {
   generatePollSessionId,
   hashPollSessionId,
   getVotePercentage,
+  MORE_FRIEND_EVENTS_OPTION_ID,
   POLL_SESSION_STORAGE_KEY,
   POLL_OPTIONS,
   POLL_VOTED_STORAGE_KEY,
@@ -74,6 +75,7 @@ export default function CommunityPoll() {
 
   const bringBackSelected = selectedOption === BRING_BACK_OPTION_ID;
   const bringBackOtherSelected = bringBackPick === BRING_BACK_OTHER_OPTION_ID;
+  const moreFriendEventsSelected = selectedOption === MORE_FRIEND_EVENTS_OPTION_ID;
   const currentVoteSummary = useMemo(
     () =>
       submittedVote?.option === BRING_BACK_OPTION_ID
@@ -82,6 +84,8 @@ export default function CommunityPoll() {
               ? ` - Other: ${submittedVote.writeIn}`
               : ` - ${formatBringBackChoice(submittedVote.bringBackPick)}`
             : ""}`
+        : submittedVote?.option === MORE_FRIEND_EVENTS_OPTION_ID
+          ? `Your vote: More Friend Events${submittedVote.writeIn ? ` - ${submittedVote.writeIn}` : ""}`
         : submittedVote
           ? `Your vote: ${POLL_OPTIONS.find((option) => option.id === submittedVote.option)?.label ?? "Saved"}`
           : "",
@@ -195,14 +199,21 @@ export default function CommunityPoll() {
       return;
     }
 
+    if (selectedOption === MORE_FRIEND_EVENTS_OPTION_ID && writeIn.trim().length === 0) {
+      setErrorMessage("Tell us what kind of friend events you want more of.");
+      return;
+    }
+
     if (!sessionId) {
       setErrorMessage("Could not start a voting session. Refresh and try one more time.");
       return;
     }
 
+    const needsWriteIn =
+      selectedOption === MORE_FRIEND_EVENTS_OPTION_ID ||
+      (selectedOption === BRING_BACK_OPTION_ID && bringBackPick === BRING_BACK_OTHER_OPTION_ID);
     const trimmedWriteIn =
-      selectedOption === BRING_BACK_OPTION_ID &&
-      bringBackPick === BRING_BACK_OTHER_OPTION_ID &&
+      needsWriteIn &&
       writeIn.trim().length > 0
         ? writeIn.trim()
         : null;
@@ -365,8 +376,8 @@ export default function CommunityPoll() {
                     setSelectedOption(value as PollOptionId);
                     if (value !== BRING_BACK_OPTION_ID) {
                       setBringBackPick("");
-                      setWriteIn("");
                     }
+                    setWriteIn("");
                     setErrorMessage("");
                   }}
                   className="space-y-0"
@@ -445,6 +456,24 @@ export default function CommunityPoll() {
                       />
                     </div>
                   )}
+                </fieldset>
+              )}
+
+              {moreFriendEventsSelected && (
+                <fieldset className="space-y-2 border-l border-border pl-5">
+                  <legend className="text-base font-heading font-semibold text-foreground">
+                    What kind of friend events should we do more of?
+                  </legend>
+                  <Label htmlFor="poll-friend-events-write-in" className="text-sm text-muted-foreground">
+                    Tell us what you want more of
+                  </Label>
+                  <Textarea
+                    id="poll-friend-events-write-in"
+                    placeholder="Other thoughts or event ideas..."
+                    value={writeIn}
+                    onChange={(event) => setWriteIn(event.target.value)}
+                    className="min-h-[110px]"
+                  />
                 </fieldset>
               )}
 

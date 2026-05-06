@@ -22,6 +22,7 @@ describe("community poll helpers", () => {
     expect(counts.ages_45_plus).toBe(1);
     expect(counts.baking).toBe(0);
     expect(counts.karaoke_singles).toBe(0);
+    expect(counts.more_friend_events).toBe(0);
     expect(counts.costco).toBe(0);
   });
 
