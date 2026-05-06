@@ -11,7 +11,7 @@ describe("community poll helpers", () => {
     const { counts, total } = buildVoteResults([
       { option: "ikea", bringBackPick: null, writeIn: null },
       { option: "ikea", bringBackPick: null, writeIn: null },
-      { option: BRING_BACK_OPTION_ID, bringBackPick: "boxing", writeIn: "Make it late" },
+      { option: BRING_BACK_OPTION_ID, bringBackPick: null, writeIn: "Bring back boxing" },
       { option: "ages_45_plus", bringBackPick: null, writeIn: null },
       { option: "unknown", bringBackPick: null, writeIn: null },
     ]);

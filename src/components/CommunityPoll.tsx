@@ -5,8 +5,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import {
   BRING_BACK_OPTION_ID,
-  BRING_BACK_OTHER_OPTION_ID,
-  BRING_BACK_OPTIONS,
   buildVoteResults,
   createEmptyVoteCounts,
   formatBringBackChoice,
@@ -17,7 +15,6 @@ import {
   POLL_SESSION_STORAGE_KEY,
   POLL_OPTIONS,
   POLL_VOTED_STORAGE_KEY,
-  type BringBackOptionId,
   type PollOptionId,
 } from "@/lib/communityPoll";
 import {
@@ -61,7 +58,6 @@ function formatPollError(error: unknown) {
 export default function CommunityPoll() {
   const firebaseEnabled = isFirebaseEnabled();
   const [selectedOption, setSelectedOption] = useState<PollOptionId | "">("");
-  const [bringBackPick, setBringBackPick] = useState<BringBackOptionId | "">("");
   const [writeIn, setWriteIn] = useState("");
   const [sessionId, setSessionId] = useState("");
   const [results, setResults] = useState(() => createEmptyVoteCounts());
@@ -74,16 +70,22 @@ export default function CommunityPoll() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const bringBackSelected = selectedOption === BRING_BACK_OPTION_ID;
-  const bringBackOtherSelected = bringBackPick === BRING_BACK_OTHER_OPTION_ID;
   const moreFriendEventsSelected = selectedOption === MORE_FRIEND_EVENTS_OPTION_ID;
+  const writeInSelected = bringBackSelected || moreFriendEventsSelected;
+  const writeInLabel = bringBackSelected
+    ? "Tell us what past event or new idea you want to bring back"
+    : "Tell us what you want more of";
+  const writeInLegend = bringBackSelected
+    ? "What should we bring back?"
+    : "What kind of friend events should we do more of?";
   const currentVoteSummary = useMemo(
     () =>
       submittedVote?.option === BRING_BACK_OPTION_ID
-        ? `Your vote: Bring Back a Past Event${submittedVote.bringBackPick
-            ? submittedVote.bringBackPick === BRING_BACK_OTHER_OPTION_ID && submittedVote.writeIn
-              ? ` - Other: ${submittedVote.writeIn}`
-              : ` - ${formatBringBackChoice(submittedVote.bringBackPick)}`
-            : ""}`
+        ? `Your vote: Bring Back a Past Event / other${submittedVote.writeIn
+            ? ` - ${submittedVote.writeIn}`
+            : submittedVote.bringBackPick
+              ? ` - ${formatBringBackChoice(submittedVote.bringBackPick)}`
+              : ""}`
         : submittedVote?.option === MORE_FRIEND_EVENTS_OPTION_ID
           ? `Your vote: More Friend Events${submittedVote.writeIn ? ` - ${submittedVote.writeIn}` : ""}`
         : submittedVote
@@ -189,13 +191,8 @@ export default function CommunityPoll() {
       return;
     }
 
-    if (selectedOption === BRING_BACK_OPTION_ID && !bringBackPick) {
-      setErrorMessage("Choose which past event you want us to bring back.");
-      return;
-    }
-
-    if (selectedOption === BRING_BACK_OPTION_ID && bringBackPick === BRING_BACK_OTHER_OPTION_ID && writeIn.trim().length === 0) {
-      setErrorMessage("Add the past event you want us to bring back.");
+    if (selectedOption === BRING_BACK_OPTION_ID && writeIn.trim().length === 0) {
+      setErrorMessage("Tell us what past event or other idea you want us to bring back.");
       return;
     }
 
@@ -211,7 +208,7 @@ export default function CommunityPoll() {
 
     const needsWriteIn =
       selectedOption === MORE_FRIEND_EVENTS_OPTION_ID ||
-      (selectedOption === BRING_BACK_OPTION_ID && bringBackPick === BRING_BACK_OTHER_OPTION_ID);
+      selectedOption === BRING_BACK_OPTION_ID;
     const trimmedWriteIn =
       needsWriteIn &&
       writeIn.trim().length > 0
@@ -232,14 +229,14 @@ export default function CommunityPoll() {
           id: "",
           sessionId: storedSessionId,
           option: selectedOption,
-          bringBackPick: selectedOption === BRING_BACK_OPTION_ID ? bringBackPick : null,
+          bringBackPick: null,
           writeIn: trimmedWriteIn,
         };
 
         await createEventVote({
           sessionId: storedSessionId,
           option: selectedOption,
-          bringBackPick: selectedOption === BRING_BACK_OPTION_ID ? bringBackPick : null,
+          bringBackPick: null,
           writeIn: trimmedWriteIn,
         });
       }
@@ -374,9 +371,6 @@ export default function CommunityPoll() {
                   value={selectedOption}
                   onValueChange={(value) => {
                     setSelectedOption(value as PollOptionId);
-                    if (value !== BRING_BACK_OPTION_ID) {
-                      setBringBackPick("");
-                    }
                     setWriteIn("");
                     setErrorMessage("");
                   }}
@@ -408,67 +402,16 @@ export default function CommunityPoll() {
                 </RadioGroup>
               </fieldset>
 
-              {bringBackSelected && (
-                <fieldset className="space-y-4 border-l border-border pl-5">
-                  <legend className="text-base font-heading font-semibold text-foreground">
-                    Which one should we bring back?
-                  </legend>
-                  <RadioGroup
-                    value={bringBackPick}
-                      onValueChange={(value) => {
-                        setBringBackPick(value as BringBackOptionId);
-                        if (value !== BRING_BACK_OTHER_OPTION_ID) {
-                          setWriteIn("");
-                        }
-                        setErrorMessage("");
-                      }}
-                      className="space-y-3"
-                  >
-                    {BRING_BACK_OPTIONS.map((option) => {
-                      const inputId = `bring-back-${option.id}`;
-
-                      return (
-                        <div key={option.id} className="flex items-start gap-3">
-                          <RadioGroupItem
-                            id={inputId}
-                            value={option.id}
-                            className="mt-1 border-primary text-primary"
-                          />
-                          <Label htmlFor={inputId} className="flex-1 cursor-pointer text-base font-medium leading-6 text-foreground">
-                            {option.emoji} {option.label}
-                          </Label>
-                        </div>
-                      );
-                      })}
-                    </RadioGroup>
-
-                  {bringBackOtherSelected && (
-                    <div className="space-y-2">
-                      <Label htmlFor="poll-write-in" className="text-sm text-muted-foreground">
-                        Tell us what you want us to bring back
-                      </Label>
-                      <Textarea
-                        id="poll-write-in"
-                        placeholder="Other thoughts or event ideas..."
-                        value={writeIn}
-                        onChange={(event) => setWriteIn(event.target.value)}
-                        className="min-h-[110px]"
-                      />
-                    </div>
-                  )}
-                </fieldset>
-              )}
-
-              {moreFriendEventsSelected && (
+              {writeInSelected && (
                 <fieldset className="space-y-2 border-l border-border pl-5">
                   <legend className="text-base font-heading font-semibold text-foreground">
-                    What kind of friend events should we do more of?
+                    {writeInLegend}
                   </legend>
-                  <Label htmlFor="poll-friend-events-write-in" className="text-sm text-muted-foreground">
-                    Tell us what you want more of
+                  <Label htmlFor="poll-write-in" className="text-sm text-muted-foreground">
+                    {writeInLabel}
                   </Label>
                   <Textarea
-                    id="poll-friend-events-write-in"
+                    id="poll-write-in"
                     placeholder="Other thoughts or event ideas..."
                     value={writeIn}
                     onChange={(event) => setWriteIn(event.target.value)}

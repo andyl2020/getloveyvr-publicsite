@@ -25,13 +25,16 @@ service cloud.firestore {
 
     function isValidBringBackPick() {
       return request.resource.data.option == "bring_back"
-        ? request.resource.data.bring_back_pick in ["boxing", "improv", "other"]
+        ? (
+            request.resource.data.bring_back_pick == null
+            || request.resource.data.bring_back_pick in ["boxing", "improv", "other"]
+          )
         : request.resource.data.bring_back_pick == null;
     }
 
     function isValidWriteIn() {
       return request.resource.data.option == "bring_back"
-        ? request.resource.data.bring_back_pick == "other"
+        ? request.resource.data.bring_back_pick == null || request.resource.data.bring_back_pick == "other"
           ? (
               request.resource.data.write_in is string
               && request.resource.data.write_in.size() > 0
