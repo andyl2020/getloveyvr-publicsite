@@ -35,6 +35,12 @@ export const POLL_OPTIONS = [
     description: "",
   },
   {
+    id: "karaoke_singles",
+    emoji: "🎤",
+    label: "Karaoke Singles Event",
+    description: "",
+  },
+  {
     id: BRING_BACK_OPTION_ID,
     emoji: "🔁",
     label: "Bring Back a Past Event / other",

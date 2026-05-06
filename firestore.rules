@@ -17,6 +17,7 @@ service cloud.firestore {
         "ikea",
         "costco",
         "baking",
+        "karaoke_singles",
         "bring_back",
       ];
     }
