@@ -1,0 +1,69 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOperator() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in [
+          "aluu.life@gmail.com"
+        ];
+    }
+
+    function isValidPollOption() {
+      return request.resource.data.option in [
+        "ikea",
+        "costco",
+        "bring_back",
+        "ages_35_45",
+        "ages_45_plus"
+      ];
+    }
+
+    function isValidBringBackPick() {
+      return request.resource.data.option == "bring_back"
+        ? request.resource.data.bring_back_pick in ["boxing", "improv"]
+        : request.resource.data.bring_back_pick == null;
+    }
+
+    function isValidWriteIn() {
+      return request.resource.data.option == "bring_back"
+        ? (
+            request.resource.data.write_in == null
+            || (
+              request.resource.data.write_in is string
+              && request.resource.data.write_in.size() <= 500
+            )
+          )
+        : request.resource.data.write_in == null;
+    }
+
+    function isValidVoteDocument() {
+      return request.resource.data.keys().hasOnly([
+          "session_id",
+          "option",
+          "bring_back_pick",
+          "write_in",
+          "created_at"
+        ])
+        && request.resource.data.session_id is string
+        && request.resource.data.session_id.size() >= 16
+        && request.resource.data.session_id.size() <= 128
+        && request.resource.data.created_at == request.time
+        && isValidPollOption()
+        && isValidBringBackPick()
+        && isValidWriteIn();
+    }
+
+    match /dashboard/{documentId} {
+      allow read: if documentId == "event-schedule" || isOperator();
+      allow write: if (documentId == "event-schedule" || documentId == "shared-state") && isOperator();
+    }
+
+    match /event_votes/{voteId} {
+      allow get, list: if true;
+      allow create: if isValidVoteDocument();
+      allow update, delete: if false;
+    }
+  }
+}

@@ -98,6 +98,23 @@ export function generatePollSessionId() {
   return `glyvr-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+export async function hashPollSessionId(sessionId: string) {
+  if (
+    typeof crypto === "undefined" ||
+    typeof crypto.subtle === "undefined" ||
+    typeof TextEncoder === "undefined"
+  ) {
+    return sessionId;
+  }
+
+  const bytes = new TextEncoder().encode(sessionId);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+
+  return Array.from(new Uint8Array(digest))
+    .map((value) => value.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 export function formatBringBackChoice(choice: string | null | undefined) {
   const match = BRING_BACK_OPTIONS.find((option) => option.id === choice);
   return match ? `${match.emoji} ${match.label}` : "";

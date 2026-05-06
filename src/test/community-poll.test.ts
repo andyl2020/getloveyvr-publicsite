@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { BRING_BACK_OPTION_ID, buildVoteResults, getVotePercentage } from "@/lib/communityPoll";
+import {
+  BRING_BACK_OPTION_ID,
+  buildVoteResults,
+  getVotePercentage,
+  hashPollSessionId,
+} from "@/lib/communityPoll";
 
 describe("community poll helpers", () => {
   it("counts votes by top-level option and ignores unknown values", () => {
@@ -22,5 +27,13 @@ describe("community poll helpers", () => {
     expect(getVotePercentage(0, 0)).toBe(0);
     expect(getVotePercentage(1, 3)).toBe(33);
     expect(getVotePercentage(2, 3)).toBe(67);
+  });
+
+  it("hashes poll session ids before they are stored", async () => {
+    const hashed = await hashPollSessionId("session-123");
+
+    expect(hashed).toHaveLength(64);
+    expect(hashed).toMatch(/^[a-f0-9]+$/);
+    expect(hashed).not.toBe("session-123");
   });
 });

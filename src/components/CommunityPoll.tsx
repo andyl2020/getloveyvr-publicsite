@@ -10,6 +10,7 @@ import {
   createEmptyVoteCounts,
   formatBringBackChoice,
   generatePollSessionId,
+  hashPollSessionId,
   getVotePercentage,
   POLL_SESSION_STORAGE_KEY,
   POLL_OPTIONS,
@@ -38,6 +39,21 @@ function getOrCreateSessionId() {
   const nextSessionId = generatePollSessionId();
   window.localStorage.setItem(POLL_SESSION_STORAGE_KEY, nextSessionId);
   return nextSessionId;
+}
+
+function formatPollError(error: unknown) {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === "string"
+        ? error
+        : "Could not complete the poll request right now.";
+
+  if (/missing or insufficient permissions|permission-denied/i.test(message)) {
+    return "Firebase is connected, but Firestore rules still block event_votes. Publish the poll rules for this project, then try again.";
+  }
+
+  return message;
 }
 
 export default function CommunityPoll() {
@@ -99,8 +115,9 @@ export default function CommunityPoll() {
       setShowResults(true);
 
       try {
+        const storedSessionId = await hashPollSessionId(nextSessionId);
         const [existingVote, votes] = await Promise.all([
-          findEventVoteBySessionId(nextSessionId),
+          findEventVoteBySessionId(storedSessionId),
           listEventVotes(),
         ]);
 
@@ -118,7 +135,7 @@ export default function CommunityPoll() {
         }
 
         setErrorMessage(
-          error instanceof Error ? error.message : "Could not load the latest poll results right now.",
+          formatPollError(error) || "Could not load the latest poll results right now.",
         );
       } finally {
         if (active) {
@@ -180,20 +197,21 @@ export default function CommunityPoll() {
     setAnimateResults(false);
 
     try {
-      const existingVote = await findEventVoteBySessionId(sessionId);
+      const storedSessionId = await hashPollSessionId(sessionId);
+      const existingVote = await findEventVoteBySessionId(storedSessionId);
       let savedVote = existingVote;
 
       if (!existingVote) {
         savedVote = {
           id: "",
-          sessionId,
+          sessionId: storedSessionId,
           option: selectedOption,
           bringBackPick: selectedOption === BRING_BACK_OPTION_ID ? bringBackPick : null,
           writeIn: trimmedWriteIn,
         };
 
         await createEventVote({
-          sessionId,
+          sessionId: storedSessionId,
           option: selectedOption,
           bringBackPick: selectedOption === BRING_BACK_OPTION_ID ? bringBackPick : null,
           writeIn: trimmedWriteIn,
@@ -209,9 +227,7 @@ export default function CommunityPoll() {
 
       await loadResults();
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error ? error.message : "Could not cast your vote right now. Please try again in a minute.",
-      );
+      setErrorMessage(formatPollError(error) || "Could not cast your vote right now. Please try again in a minute.");
     } finally {
       setIsSubmitting(false);
       setIsBootstrapping(false);
