@@ -342,7 +342,7 @@ export default function CommunityPoll() {
               </div>
 
               <p className="text-sm leading-6 text-muted-foreground">
-                We read every single vote. This is how we decide what&apos;s next.
+                Every vote counts, and every response stays anonymous.
               </p>
             </div>
           ) : (
