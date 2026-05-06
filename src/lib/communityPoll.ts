@@ -1,26 +1,9 @@
 export const POLL_VOTED_STORAGE_KEY = "glyvr_voted";
 export const POLL_SESSION_STORAGE_KEY = "glyvr_session_id";
 export const BRING_BACK_OPTION_ID = "bring_back";
+export const BRING_BACK_OTHER_OPTION_ID = "other";
 
 export const POLL_OPTIONS = [
-  {
-    id: "ikea",
-    emoji: "🛒",
-    label: "IKEA Singles Event",
-    description: "browse, vibe, maybe find someone in the kitchen aisle",
-  },
-  {
-    id: "costco",
-    emoji: "🛒",
-    label: "Costco Singles Event",
-    description: "free samples + good energy",
-  },
-  {
-    id: BRING_BACK_OPTION_ID,
-    emoji: "🔁",
-    label: "Bring Back a Past Event",
-    description: "select to choose below",
-  },
   {
     id: "ages_35_45",
     emoji: "👥",
@@ -31,6 +14,30 @@ export const POLL_OPTIONS = [
     id: "ages_45_plus",
     emoji: "👥",
     label: "A Series for Ages 45+",
+    description: "",
+  },
+  {
+    id: "ikea",
+    emoji: "🛒",
+    label: "IKEA Singles Event",
+    description: "",
+  },
+  {
+    id: "costco",
+    emoji: "🛒",
+    label: "Costco Singles Event",
+    description: "",
+  },
+  {
+    id: "baking",
+    emoji: "🧁",
+    label: "Baking Event",
+    description: "",
+  },
+  {
+    id: BRING_BACK_OPTION_ID,
+    emoji: "🔁",
+    label: "Bring Back a Past Event / other",
     description: "",
   },
 ] as const;
@@ -45,6 +52,11 @@ export const BRING_BACK_OPTIONS = [
     id: "improv",
     label: "Improv Night",
     emoji: "🎭",
+  },
+  {
+    id: BRING_BACK_OTHER_OPTION_ID,
+    label: "Other",
+    emoji: "✍️",
   },
 ] as const;
 

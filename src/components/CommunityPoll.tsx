@@ -5,6 +5,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import {
   BRING_BACK_OPTION_ID,
+  BRING_BACK_OTHER_OPTION_ID,
   BRING_BACK_OPTIONS,
   buildVoteResults,
   createEmptyVoteCounts,
@@ -72,10 +73,15 @@ export default function CommunityPoll() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const bringBackSelected = selectedOption === BRING_BACK_OPTION_ID;
+  const bringBackOtherSelected = bringBackPick === BRING_BACK_OTHER_OPTION_ID;
   const currentVoteSummary = useMemo(
     () =>
       submittedVote?.option === BRING_BACK_OPTION_ID
-        ? `Your vote: Bring Back a Past Event${submittedVote.bringBackPick ? ` - ${formatBringBackChoice(submittedVote.bringBackPick)}` : ""}`
+        ? `Your vote: Bring Back a Past Event${submittedVote.bringBackPick
+            ? submittedVote.bringBackPick === BRING_BACK_OTHER_OPTION_ID && submittedVote.writeIn
+              ? ` - Other: ${submittedVote.writeIn}`
+              : ` - ${formatBringBackChoice(submittedVote.bringBackPick)}`
+            : ""}`
         : submittedVote
           ? `Your vote: ${POLL_OPTIONS.find((option) => option.id === submittedVote.option)?.label ?? "Saved"}`
           : "",
@@ -184,13 +190,22 @@ export default function CommunityPoll() {
       return;
     }
 
+    if (selectedOption === BRING_BACK_OPTION_ID && bringBackPick === BRING_BACK_OTHER_OPTION_ID && writeIn.trim().length === 0) {
+      setErrorMessage("Add the past event you want us to bring back.");
+      return;
+    }
+
     if (!sessionId) {
       setErrorMessage("Could not start a voting session. Refresh and try one more time.");
       return;
     }
 
     const trimmedWriteIn =
-      selectedOption === BRING_BACK_OPTION_ID && writeIn.trim().length > 0 ? writeIn.trim() : null;
+      selectedOption === BRING_BACK_OPTION_ID &&
+      bringBackPick === BRING_BACK_OTHER_OPTION_ID &&
+      writeIn.trim().length > 0
+        ? writeIn.trim()
+        : null;
 
     setIsSubmitting(true);
     setErrorMessage("");
@@ -348,6 +363,10 @@ export default function CommunityPoll() {
                   value={selectedOption}
                   onValueChange={(value) => {
                     setSelectedOption(value as PollOptionId);
+                    if (value !== BRING_BACK_OPTION_ID) {
+                      setBringBackPick("");
+                      setWriteIn("");
+                    }
                     setErrorMessage("");
                   }}
                   className="space-y-0"
@@ -385,11 +404,14 @@ export default function CommunityPoll() {
                   </legend>
                   <RadioGroup
                     value={bringBackPick}
-                    onValueChange={(value) => {
-                      setBringBackPick(value as BringBackOptionId);
-                      setErrorMessage("");
-                    }}
-                    className="space-y-3"
+                      onValueChange={(value) => {
+                        setBringBackPick(value as BringBackOptionId);
+                        if (value !== BRING_BACK_OTHER_OPTION_ID) {
+                          setWriteIn("");
+                        }
+                        setErrorMessage("");
+                      }}
+                      className="space-y-3"
                   >
                     {BRING_BACK_OPTIONS.map((option) => {
                       const inputId = `bring-back-${option.id}`;
@@ -406,21 +428,23 @@ export default function CommunityPoll() {
                           </Label>
                         </div>
                       );
-                    })}
-                  </RadioGroup>
+                      })}
+                    </RadioGroup>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="poll-write-in" className="text-sm text-muted-foreground">
-                      Other thoughts or event ideas
-                    </Label>
-                    <Textarea
-                      id="poll-write-in"
-                      placeholder="Other thoughts or event ideas..."
-                      value={writeIn}
-                      onChange={(event) => setWriteIn(event.target.value)}
-                      className="min-h-[110px]"
-                    />
-                  </div>
+                  {bringBackOtherSelected && (
+                    <div className="space-y-2">
+                      <Label htmlFor="poll-write-in" className="text-sm text-muted-foreground">
+                        Tell us what you want us to bring back
+                      </Label>
+                      <Textarea
+                        id="poll-write-in"
+                        placeholder="Other thoughts or event ideas..."
+                        value={writeIn}
+                        onChange={(event) => setWriteIn(event.target.value)}
+                        className="min-h-[110px]"
+                      />
+                    </div>
+                  )}
                 </fieldset>
               )}
 

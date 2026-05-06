@@ -20,6 +20,7 @@ describe("community poll helpers", () => {
     expect(counts.ikea).toBe(2);
     expect(counts[BRING_BACK_OPTION_ID]).toBe(1);
     expect(counts.ages_45_plus).toBe(1);
+    expect(counts.baking).toBe(0);
     expect(counts.costco).toBe(0);
   });
 
