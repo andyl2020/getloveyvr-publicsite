@@ -137,8 +137,7 @@ const EventCalendar = ({
   events: EventScheduleEntry[];
   targetedEvent?: EventScheduleEntry;
 }) => {
-  const initialEvent = targetedEvent ?? events[0];
-  const initialParts = initialEvent ? getEventCalendarParts(initialEvent.eventDate) : undefined;
+  const initialParts = targetedEvent ? getEventCalendarParts(targetedEvent.eventDate) : undefined;
   const [today, setToday] = useState(() => new Date());
   const [currentMonth, setCurrentMonth] = useState(() => initialParts?.month ?? new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(() => initialParts?.year ?? new Date().getFullYear());
