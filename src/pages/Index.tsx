@@ -51,6 +51,13 @@ const MONTHS = [
 ];
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+function toDateKey(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function getCalendarDays(month: number, year: number) {
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -151,6 +158,7 @@ const EventCalendar = ({
   const todayMonth = today.getMonth();
   const todayDate = today.getDate();
   const todayYear = today.getFullYear();
+  const todayKey = toDateKey(today);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -286,6 +294,13 @@ const EventCalendar = ({
     title: `Right-click or press and hold to copy the link for ${event.title}`,
   });
 
+  const focusEventCard = (event: EventScheduleEntry) => {
+    const parts = getEventCalendarParts(event.eventDate);
+    setCurrentMonth(parts.month);
+    setCurrentYear(parts.year);
+    setPendingFocusSlug(event.slug);
+  };
+
   const prevMonth = () => {
     if (currentMonth === 0) {
       setCurrentMonth(11);
@@ -345,18 +360,24 @@ const EventCalendar = ({
           const event = getEventForDay(events, day, currentMonth, currentYear);
           const isToday = day === todayDate && currentMonth === todayMonth && currentYear === todayYear;
           const isFocusedEvent = event?.slug === glowingSlug;
+          const isPastEvent = Boolean(event && event.eventDate < todayKey);
           const copyInteractionProps = event ? getCopyInteractionProps(event) : undefined;
 
           return (
-            <div
+            <button
               key={day}
+              type="button"
+              disabled={!event}
+              onClick={event ? () => focusEventCard(event) : undefined}
+              aria-label={event ? `Open ${event.title}` : undefined}
               className={[
-                "relative aspect-square flex flex-col items-center justify-center rounded-lg text-sm",
+                "relative aspect-square w-full border-0 bg-transparent p-0 flex flex-col items-center justify-center rounded-lg text-sm transition-opacity",
                 isToday ? "font-semibold ring-2 ring-primary/40 bg-primary/15 text-primary shadow-sm" : "",
+                isPastEvent ? "opacity-60" : "",
                 isFocusedEvent ? "event-focus-glow ring-2 ring-primary/55 bg-primary/12 text-primary shadow-sm" : "",
                 !isToday && event && !isFocusedEvent ? "font-semibold ring-2 ring-primary/30 bg-primary/5" : "",
                 !event && !isToday ? "text-muted-foreground" : "",
-                event ? "cursor-context-menu select-none" : "",
+                event ? "cursor-pointer select-none" : "cursor-default",
               ]
                 .filter(Boolean)
                 .join(" ")}
@@ -364,7 +385,7 @@ const EventCalendar = ({
             >
               <span>{day}</span>
               {event && <span className="text-base leading-none mt-0.5">{event.emoji}</span>}
-            </div>
+            </button>
           );
         })}
       </div>
