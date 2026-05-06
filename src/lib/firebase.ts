@@ -6,8 +6,21 @@ import {
   signInWithPopup,
   signOut,
 } from "firebase/auth";
-import { doc, getFirestore, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  getFirestore,
+  limit,
+  onSnapshot,
+  query,
+  serverTimestamp,
+  setDoc,
+  where,
+} from "firebase/firestore";
 import { normalizeEventSchedule, serializeEventSchedule, type EventScheduleEntry } from "@/data/eventSchedule";
+import type { PollOptionId } from "@/lib/communityPoll";
 import { parseEmailList, resolveGoatRole, type GoatRole } from "@/lib/goatAccess";
 
 const firebaseConfig = {
@@ -37,6 +50,7 @@ const goatEmails = parseEmailList(import.meta.env.VITE_FIREBASE_GOAT_EMAILS ?? "
 const dashboardCollection = import.meta.env.VITE_FIREBASE_DASHBOARD_COLLECTION ?? "dashboard";
 const dashboardDocument = import.meta.env.VITE_FIREBASE_DASHBOARD_DOCUMENT ?? "shared-state";
 const eventScheduleDocument = import.meta.env.VITE_FIREBASE_EVENT_SCHEDULE_DOCUMENT ?? "event-schedule";
+const eventVotesCollection = "event_votes";
 
 let app = null;
 let auth = null;
@@ -186,4 +200,86 @@ export async function saveEventSchedule(schedule: EventScheduleEntry[], editorEm
     },
     { merge: true },
   );
+}
+
+export interface EventVotePayload {
+  sessionId: string;
+  option: PollOptionId;
+  bringBackPick?: string | null;
+  writeIn?: string | null;
+}
+
+export interface EventVoteDoc {
+  id: string;
+  sessionId: string;
+  option: string;
+  bringBackPick: string | null;
+  writeIn: string | null;
+}
+
+export async function findEventVoteBySessionId(sessionId: string) {
+  if (!db) {
+    throw new Error("Firebase is not configured yet.");
+  }
+
+  const votesRef = collection(db, eventVotesCollection);
+  const existingVoteSnapshot = await getDocs(
+    query(votesRef, where("session_id", "==", sessionId), limit(1)),
+  );
+  const existingVote = existingVoteSnapshot.docs[0];
+
+  if (!existingVote) {
+    return null;
+  }
+
+  const data = existingVote.data() ?? {};
+
+  return {
+    id: existingVote.id,
+    sessionId: typeof data.session_id === "string" ? data.session_id : "",
+    option: typeof data.option === "string" ? data.option : "",
+    bringBackPick: typeof data.bring_back_pick === "string" ? data.bring_back_pick : null,
+    writeIn: typeof data.write_in === "string" ? data.write_in : null,
+  } satisfies EventVoteDoc;
+}
+
+export async function createEventVote({
+  sessionId,
+  option,
+  bringBackPick = null,
+  writeIn = null,
+}: EventVotePayload) {
+  if (!db) {
+    throw new Error("Firebase is not configured yet.");
+  }
+
+  const votesRef = collection(db, eventVotesCollection);
+
+  await addDoc(votesRef, {
+    session_id: sessionId,
+    option,
+    bring_back_pick: bringBackPick,
+    write_in: writeIn,
+    created_at: serverTimestamp(),
+  });
+}
+
+export async function listEventVotes() {
+  if (!db) {
+    throw new Error("Firebase is not configured yet.");
+  }
+
+  const votesSnapshot = await getDocs(collection(db, eventVotesCollection));
+
+  return votesSnapshot.docs.map((voteDoc) => {
+    const data = voteDoc.data() ?? {};
+
+    return {
+      id: voteDoc.id,
+      sessionId: typeof data.session_id === "string" ? data.session_id : "",
+      option: typeof data.option === "string" ? data.option : "",
+      bringBackPick: typeof data.bring_back_pick === "string" ? data.bring_back_pick : null,
+      writeIn: typeof data.write_in === "string" ? data.write_in : null,
+    } satisfies EventVoteDoc;
+  });
 }

@@ -12,6 +12,7 @@ import {
   Users,
 } from "lucide-react";
 import { Link, useLocation, useParams } from "react-router-dom";
+import CommunityPoll from "@/components/CommunityPoll";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -620,6 +621,8 @@ const Index = () => {
           <EventCalendar events={events} targetedEvent={targetedEvent} />
         </div>
       </section>
+
+      <CommunityPoll />
 
       <section id="join" className="py-20 px-4 bg-primary text-primary-foreground">
         <div className="container max-w-3xl mx-auto text-center">
