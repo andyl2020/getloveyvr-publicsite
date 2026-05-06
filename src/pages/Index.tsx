@@ -151,10 +151,12 @@ const EventCalendar = ({
 
   const days = getCalendarDays(currentMonth, currentYear);
   const totalSinglesEvents = getSinglesSeriesCount(events);
-  const monthEvents = events.filter((event) => {
-    const parts = getEventCalendarParts(event.eventDate);
-    return parts.month === currentMonth && parts.year === currentYear;
-  });
+  const monthEvents = [...events]
+    .filter((event) => {
+      const parts = getEventCalendarParts(event.eventDate);
+      return parts.month === currentMonth && parts.year === currentYear;
+    })
+    .sort((left, right) => left.eventDate.localeCompare(right.eventDate));
   const todayMonth = today.getMonth();
   const todayDate = today.getDate();
   const todayYear = today.getFullYear();
