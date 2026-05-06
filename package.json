@@ -5,13 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run sitemap:generate && vite build",
     "build:dev": "vite build --mode development",
     "dashboard:move-state": "node scripts/move-dashboard-event-state.mjs",
     "dashboard:publish-schedule": "node scripts/publish-event-schedule.mjs",
     "firestore:deploy:rules": "npx firebase-tools deploy --only firestore:rules --project getloveyvr-dashboard",
     "lint": "eslint .",
     "preview": "vite preview",
+    "sitemap:generate": "node scripts/generate-sitemap.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },
