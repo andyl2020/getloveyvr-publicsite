@@ -83,9 +83,17 @@ function getEventForDay(events: EventScheduleEntry[], day: number, month: number
   });
 }
 
+function isPreMeetEvent(event: EventScheduleEntry) {
+  return event.slug.includes("pre-meet");
+}
+
 function getEventLabel(event: EventScheduleEntry, totalSinglesEvents: number) {
   if (isSinglesSeriesEvent(event)) {
     return `Singles Event ${event.seriesNumber} of ${totalSinglesEvents}`;
+  }
+
+  if (isPreMeetEvent(event)) {
+    return "Pre-Meet Event";
   }
 
   if (event.seriesType === "singles") {

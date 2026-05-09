@@ -116,7 +116,7 @@ describe("shared event schedule", () => {
     expect(hikingPreMeetEvent).toMatchObject({
       seriesType: "singles",
       seriesNumber: undefined,
-      theme: "Hiking Carpool Pre-Meet Singles Event",
+      theme: "Hiking Carpool Pre-Meet",
       eventDate: "2026-07-18",
     });
     expect(paddleBoardingEvent).toMatchObject({
@@ -128,7 +128,7 @@ describe("shared event schedule", () => {
     expect(paddleBoardingPreMeetEvent).toMatchObject({
       seriesType: "singles",
       seriesNumber: undefined,
-      theme: "Paddle Boarding Carpool Pre-Meet Singles Event",
+      theme: "Paddle Boarding Carpool Pre-Meet",
       eventDate: "2026-08-08",
     });
     expect(augustKaraokeFriendsEvent).toMatchObject({
