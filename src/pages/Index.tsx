@@ -16,6 +16,7 @@ import CommunityPoll from "@/components/CommunityPoll";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
+  getSinglesSeriesTotal,
   getActiveEventSchedule,
   type EventScheduleEntry,
   getEventCalendarParts,
@@ -82,13 +83,13 @@ function getEventForDay(events: EventScheduleEntry[], day: number, month: number
   });
 }
 
-function getSinglesSeriesCount(events: EventScheduleEntry[]) {
-  return events.filter(isSinglesSeriesEvent).length;
-}
-
 function getEventLabel(event: EventScheduleEntry, totalSinglesEvents: number) {
   if (isSinglesSeriesEvent(event)) {
     return `Singles Event ${event.seriesNumber} of ${totalSinglesEvents}`;
+  }
+
+  if (event.seriesType === "singles") {
+    return "Singles Event";
   }
 
   return "Friends Event";
@@ -150,7 +151,7 @@ const EventCalendar = ({
   const suppressNextClickRef = useRef(false);
 
   const days = getCalendarDays(currentMonth, currentYear);
-  const totalSinglesEvents = getSinglesSeriesCount(events);
+  const totalSinglesEvents = getSinglesSeriesTotal(events);
   const monthEvents = [...events]
     .filter((event) => {
       const parts = getEventCalendarParts(event.eventDate);
@@ -463,7 +464,7 @@ const Index = () => {
   const { eventSlug } = useParams();
   const { schedule } = useEventSchedule();
   const events = getActiveEventSchedule(schedule);
-  const totalSinglesEvents = getSinglesSeriesCount(events);
+  const totalSinglesEvents = getSinglesSeriesTotal(events);
   const targetedEvent = findEventBySlug(events, eventSlug);
 
   useEffect(() => {

@@ -51,8 +51,8 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     slug: "karaoke-friends-edition",
     shareSlug: "f1-karaoke-friends-edition",
     seriesType: "friends",
-    title: "Karaoke (Friends Edition)",
-    boardTheme: "Karaoke (Friends Edition)",
+    title: "Karaoke S2 E2 (Friends Edition)",
+    boardTheme: "Karaoke S2 E2 (Friends Edition)",
     eventDate: "2026-05-20",
     joinUrl: "https://flocksocial.app/events/97f405cf-3602-4093-aa17-422279eda167",
     emoji: "\u{1F3A4}",
@@ -80,7 +80,7 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     seriesNumber: 4,
     title: "Art Wellness (ft. Art Therapist) Singles Event",
     boardTheme: "Art Wellness (ft. Art Therapist) Singles Event",
-    eventDate: "2026-06-28",
+    eventDate: "2026-06-07",
     emoji: "\u{1F9D8}",
     colorClass: "bg-event-painting",
     defaultOwner: "Stephy",
@@ -90,8 +90,8 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     slug: "karaoke-again-friends-edition",
     shareSlug: "f2-karaoke",
     seriesType: "friends",
-    title: "Karaoke (Friends Edition)",
-    boardTheme: "Karaoke (Friends Edition)",
+    title: "Karaoke S2 E3 (Friends Edition)",
+    boardTheme: "Karaoke S2 E3 (Friends Edition)",
     eventDate: "2026-06-17",
     joinUrl: "https://flocksocial.app/events/f9b17d44-c5b4-4fb2-bd9c-744da16b15bc",
     emoji: "\u{1F3A4}",
@@ -116,12 +116,11 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     shareSlug: "e6-event",
     seriesType: "singles",
     seriesNumber: 5,
-    title: "TBD Singles Event",
-    boardTheme: "TBD Singles Event",
+    title: "Hiking Singles Event",
+    boardTheme: "Hiking Singles Event",
     eventDate: "2026-07-19",
-    emoji: "\u{2728}",
-    colorClass: "bg-event-tbd",
-    tentative: true,
+    emoji: "\u{1F97E}",
+    colorClass: "bg-event-social",
   },
   {
     id: 9,
@@ -129,12 +128,11 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     shareSlug: "e7-event",
     seriesType: "singles",
     seriesNumber: 6,
-    title: "TBD Singles Event",
-    boardTheme: "TBD Singles Event",
+    title: "Paddle Boarding Singles Event",
+    boardTheme: "Paddle Boarding Singles Event",
     eventDate: "2026-08-09",
-    emoji: "\u{2728}",
-    colorClass: "bg-event-tbd",
-    tentative: true,
+    emoji: "\u{1F6F6}",
+    colorClass: "bg-event-social",
   },
   {
     id: 10,
@@ -142,12 +140,11 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     shareSlug: "e8-event",
     seriesType: "singles",
     seriesNumber: 7,
-    title: "TBD Singles Event",
-    boardTheme: "TBD Singles Event",
-    eventDate: "2026-08-30",
-    emoji: "\u{2728}",
-    colorClass: "bg-event-tbd",
-    tentative: true,
+    title: "Baking Singles Event",
+    boardTheme: "Baking Singles Event",
+    eventDate: "2026-06-28",
+    emoji: "\u{1F9C1}",
+    colorClass: "bg-event-social",
   },
   {
     id: 11,
@@ -160,6 +157,7 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     eventDate: "2026-06-07",
     emoji: "\u{1F3B2}",
     colorClass: "bg-event-social",
+    archived: true,
   },
   {
     id: 12,
@@ -167,12 +165,57 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     shareSlug: "e9-event",
     seriesType: "singles",
     seriesNumber: 8,
-    title: "TBD Singles Event",
-    boardTheme: "TBD Singles Event",
+    title: "Karaoke Singles Event",
+    boardTheme: "Karaoke Singles Event",
     eventDate: "2026-09-20",
-    emoji: "\u{2728}",
-    colorClass: "bg-event-tbd",
-    tentative: true,
+    emoji: "\u{1F3A4}",
+    colorClass: "bg-event-social",
+  },
+  {
+    id: 13,
+    slug: "karaoke-friends-s2-e4",
+    shareSlug: "f3-karaoke-s2-e4",
+    seriesType: "friends",
+    title: "Karaoke S2 E4 (Friends Edition)",
+    boardTheme: "Karaoke S2 E4 (Friends Edition)",
+    eventDate: "2026-08-19",
+    emoji: "\u{1F3A4}",
+    colorClass: "bg-event-social",
+    defaultOwner: "Stephy",
+  },
+  {
+    id: 14,
+    slug: "karaoke-friends-s2-e5",
+    shareSlug: "f4-karaoke-s2-e5",
+    seriesType: "friends",
+    title: "Karaoke S2 E5 (Friends Edition)",
+    boardTheme: "Karaoke S2 E5 (Friends Edition)",
+    eventDate: "2026-09-11",
+    emoji: "\u{1F3A4}",
+    colorClass: "bg-event-social",
+    defaultOwner: "Stephy",
+  },
+  {
+    id: 15,
+    slug: "hiking-carpool-pre-meet",
+    shareSlug: "hiking-carpool-pre-meet",
+    seriesType: "singles",
+    title: "Hiking Carpool Pre-Meet Singles Event",
+    boardTheme: "Hiking Carpool Pre-Meet Singles Event",
+    eventDate: "2026-07-18",
+    emoji: "\u{1F697}",
+    colorClass: "bg-event-social",
+  },
+  {
+    id: 16,
+    slug: "paddle-boarding-carpool-pre-meet",
+    shareSlug: "paddle-boarding-carpool-pre-meet",
+    seriesType: "singles",
+    title: "Paddle Boarding Carpool Pre-Meet Singles Event",
+    boardTheme: "Paddle Boarding Carpool Pre-Meet Singles Event",
+    eventDate: "2026-08-08",
+    emoji: "\u{1F697}",
+    colorClass: "bg-event-social",
   },
 ];
 
@@ -287,8 +330,18 @@ export function getActiveEventSchedule(events: EventScheduleEntry[]) {
   return events.filter((event) => !isArchivedEvent(event));
 }
 
-export function isSinglesSeriesEvent(event: EventScheduleEntry) {
+export function isSinglesSeriesEvent(
+  event: EventScheduleEntry,
+): event is EventScheduleEntry & { seriesNumber: number } {
   return event.seriesType === "singles" && typeof event.seriesNumber === "number";
+}
+
+export function getSinglesSeriesTotal(events: EventScheduleEntry[]) {
+  return events.reduce(
+    (highestSeriesNumber, event) =>
+      isSinglesSeriesEvent(event) ? Math.max(highestSeriesNumber, event.seriesNumber) : highestSeriesNumber,
+    0,
+  );
 }
 
 export function getEventCalendarParts(eventDate: string) {
