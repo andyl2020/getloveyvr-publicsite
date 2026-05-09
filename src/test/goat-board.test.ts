@@ -41,6 +41,26 @@ describe("shared event schedule", () => {
     expect(finalCheckMilestone?.date).toBe("2026-05-04");
   });
 
+  it("keeps event numbering and completed task state bound to the same event when the date moves", () => {
+    const shiftedSchedule = DEFAULT_EVENT_SCHEDULE.map((event) =>
+      event.id === 1 ? { ...event, eventDate: "2026-05-10" } : event,
+    );
+
+    const shiftedEvent = buildBoardEvents(shiftedSchedule).find((event) => event.id === 1);
+    const kickoffMilestone = shiftedEvent?.milestones.find((milestone) => milestone.type === "kickoff");
+    const venueLockedMilestone = shiftedEvent?.milestones.find((milestone) => milestone.type === "venueLocked");
+
+    expect(shiftedEvent).toMatchObject({
+      id: 1,
+      seriesType: "singles",
+      seriesNumber: 1,
+      theme: "Boxing Singles Event",
+      eventDate: "2026-05-10",
+    });
+    expect(kickoffMilestone?.outputs.every((output) => output.done)).toBe(true);
+    expect(venueLockedMilestone?.outputs.every((output) => output.done)).toBe(true);
+  });
+
   it("keeps archived singles off the public schedule while preserving them on the board", () => {
     const boardEvents = buildBoardEvents(DEFAULT_EVENT_SCHEDULE);
     const publicEvents = getActiveEventSchedule(DEFAULT_EVENT_SCHEDULE);

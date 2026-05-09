@@ -12,6 +12,7 @@
     "firestore:deploy:rules": "npx firebase-tools deploy --only firestore:rules --project getloveyvr-dashboard",
     "lint": "eslint .",
     "preview": "vite preview",
+    "schedule:sync": "npm run dashboard:publish-schedule && npm run sitemap:generate",
     "sitemap:generate": "node scripts/generate-sitemap.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
