@@ -10,7 +10,6 @@ import {
   addDoc,
   collection,
   doc,
-  getDoc,
   getDocs,
   getFirestore,
   limit,
@@ -23,7 +22,6 @@ import {
 import { normalizeEventSchedule, serializeEventSchedule, type EventScheduleEntry } from "@/data/eventSchedule";
 import type { PollOptionId } from "@/lib/communityPoll";
 import { parseEmailList, resolveGoatRole, type GoatRole } from "@/lib/goatAccess";
-import { hashMailingListEmail, normalizeMailingListEmail } from "@/lib/mailingList";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -53,7 +51,6 @@ const dashboardCollection = import.meta.env.VITE_FIREBASE_DASHBOARD_COLLECTION ?
 const dashboardDocument = import.meta.env.VITE_FIREBASE_DASHBOARD_DOCUMENT ?? "shared-state";
 const eventScheduleDocument = import.meta.env.VITE_FIREBASE_EVENT_SCHEDULE_DOCUMENT ?? "event-schedule";
 const eventVotesCollection = "event_votes";
-const mailingListCollection = "mailing_list_signups";
 
 let app = null;
 let auth = null;
@@ -265,75 +262,6 @@ export async function createEventVote({
     write_in: writeIn,
     created_at: serverTimestamp(),
   });
-}
-
-export interface MailingListSignupDoc {
-  id: string;
-  email: string;
-  normalizedEmail: string;
-  source: string;
-}
-
-export async function findMailingListSignupByEmail(email: string) {
-  if (!db) {
-    throw new Error("Firebase is not configured yet.");
-  }
-
-  const normalizedEmail = normalizeMailingListEmail(email);
-  const signupId = await hashMailingListEmail(normalizedEmail);
-  const signupRef = doc(db, mailingListCollection, signupId);
-  const signupSnapshot = await getDoc(signupRef);
-
-  if (!signupSnapshot.exists()) {
-    return null;
-  }
-
-  const data = signupSnapshot.data() ?? {};
-
-  return {
-    id: signupSnapshot.id,
-    email: typeof data.email === "string" ? data.email : normalizedEmail,
-    normalizedEmail:
-      typeof data.normalized_email === "string" ? data.normalized_email : normalizedEmail,
-    source: typeof data.source === "string" ? data.source : "",
-  } satisfies MailingListSignupDoc;
-}
-
-export async function createMailingListSignup(email: string, source = "homepage_join") {
-  if (!db) {
-    throw new Error("Firebase is not configured yet.");
-  }
-
-  const normalizedEmail = normalizeMailingListEmail(email);
-  const existingSignup = await findMailingListSignupByEmail(normalizedEmail);
-
-  if (existingSignup) {
-    return {
-      signup: existingSignup,
-      alreadySubscribed: true,
-    };
-  }
-
-  const signupId = await hashMailingListEmail(normalizedEmail);
-  const signupRef = doc(db, mailingListCollection, signupId);
-  const trimmedEmail = email.trim();
-
-  await setDoc(signupRef, {
-    email: trimmedEmail,
-    normalized_email: normalizedEmail,
-    source,
-    created_at: serverTimestamp(),
-  });
-
-  return {
-    signup: {
-      id: signupId,
-      email: trimmedEmail,
-      normalizedEmail,
-      source,
-    } satisfies MailingListSignupDoc,
-    alreadySubscribed: false,
-  };
 }
 
 export async function listEventVotes() {
