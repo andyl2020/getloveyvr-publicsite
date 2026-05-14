@@ -4,7 +4,6 @@ import {
   ChevronLeft,
   ChevronRight,
   DoorOpen,
-  ExternalLink,
   Heart,
   Instagram,
   MapPin,
@@ -13,6 +12,7 @@ import {
 } from "lucide-react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import CommunityPoll from "@/components/CommunityPoll";
+import MailingListSignup from "@/components/MailingListSignup";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -32,7 +32,6 @@ const TikTokIcon = ({ className }: { className?: string }) => (
 );
 
 const logo = `${import.meta.env.BASE_URL}logo-mark.png`;
-const FLOCK_URL = "https://flocksocial.app/flocks/57c9a846-3663-4bec-85b8-60c01cd5e322";
 const BASE_PATH = import.meta.env.BASE_URL === "/" ? "" : import.meta.env.BASE_URL.replace(/\/$/, "");
 const COPY_NOTICE_DURATION_MS = 1400;
 const LONG_PRESS_DURATION_MS = 600;
@@ -577,9 +576,8 @@ const Index = () => {
               </a>
             </Button>
             <Button size="lg" variant="outline" asChild className="text-base px-8">
-              <a href={FLOCK_URL} target="_blank" rel="noopener noreferrer">
-                Join the Community
-                <ExternalLink className="w-4 h-4 ml-2" />
+              <a href="#join">
+                Join the Mailing List
               </a>
             </Button>
           </div>
@@ -634,18 +632,18 @@ const Index = () => {
       <CommunityPoll />
 
       <section id="join" className="py-20 px-4 bg-primary text-primary-foreground">
-        <div className="container max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-4xl font-heading font-bold mb-4">Ready to find love?</h2>
-          <p className="text-lg opacity-90 mb-8 max-w-md mx-auto">
-            Join our community on Flock Social to get event updates, meet other singles, and RSVP.
-          </p>
-          <Button size="lg" variant="secondary" asChild className="text-base px-8">
-            <a href={FLOCK_URL} target="_blank" rel="noopener noreferrer">
-              Join GetLoveYVR
-              <ExternalLink className="w-4 h-4 ml-2" />
-            </a>
-          </Button>
-          <div className="flex items-center justify-center gap-4 mt-8">
+        <div className="container max-w-5xl mx-auto">
+          <div className="grid gap-10 lg:grid-cols-[1fr_1.05fr] lg:items-center">
+            <div className="max-w-xl">
+              <h2 className="text-3xl sm:text-4xl font-heading font-bold mb-4">Ready for the next event drop?</h2>
+              <p className="text-lg opacity-90 max-w-lg">
+                Drop your email and we’ll send new events, early links, and the good last-minute openings.
+                No spam. No pressure. Just the stuff you’d actually want to know about.
+              </p>
+            </div>
+            <MailingListSignup />
+          </div>
+          <div className="flex items-center justify-center gap-4 mt-10">
             <a
               href="https://www.instagram.com/getloveyvr"
               target="_blank"

@@ -67,6 +67,29 @@ service cloud.firestore {
         && isValidWriteIn();
     }
 
+    function isValidEmailAddress(value) {
+      return value is string
+        && value.size() >= 5
+        && value.size() <= 320
+        && value.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$');
+    }
+
+    function isValidMailingListDocument() {
+      return request.resource.data.keys().hasOnly([
+          "email",
+          "normalized_email",
+          "source",
+          "created_at"
+        ])
+        && isValidEmailAddress(request.resource.data.email)
+        && isValidEmailAddress(request.resource.data.normalized_email)
+        && request.resource.data.normalized_email == request.resource.data.email.lower()
+        && request.resource.data.source is string
+        && request.resource.data.source.size() > 0
+        && request.resource.data.source.size() <= 64
+        && request.resource.data.created_at == request.time;
+    }
+
     match /dashboard/{documentId} {
       allow read: if documentId == "event-schedule" || isOperator();
       allow write: if (documentId == "event-schedule" || documentId == "shared-state") && isOperator();
@@ -75,6 +98,13 @@ service cloud.firestore {
     match /event_votes/{voteId} {
       allow get, list: if true;
       allow create: if isValidVoteDocument();
+      allow update, delete: if false;
+    }
+
+    match /mailing_list_signups/{signupId} {
+      allow get: if true;
+      allow list: if isOperator();
+      allow create: if isValidMailingListDocument();
       allow update, delete: if false;
     }
   }
