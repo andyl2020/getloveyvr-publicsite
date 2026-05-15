@@ -634,11 +634,9 @@ const Index = () => {
       <section id="join" className="py-20 px-4 bg-primary text-primary-foreground">
         <div className="container max-w-4xl mx-auto">
           <div className="mx-auto mb-8 max-w-2xl text-center">
-            <h2 className="text-3xl sm:text-4xl font-heading font-bold mb-4">
-              Vancouver Singles Events Email List
-            </h2>
+            <h2 className="text-3xl sm:text-4xl font-heading font-bold mb-4">Ready for the next event drop?</h2>
             <p className="text-lg opacity-90">
-              Get new event drops, early access, and last-minute openings from GetLoveYVR.
+              Join the mailing list to be first to know when new Vancouver singles events drop.
             </p>
           </div>
           <MailingListSignup />
