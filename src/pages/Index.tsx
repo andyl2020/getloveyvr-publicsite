@@ -637,8 +637,8 @@ const Index = () => {
             <div className="max-w-xl">
               <h2 className="text-3xl sm:text-4xl font-heading font-bold mb-4">Ready for the next event drop?</h2>
               <p className="text-lg opacity-90 max-w-lg">
-                Drop your email and we’ll send new events, early links, and the good last-minute openings.
-                No spam. No pressure. Just the stuff you’d actually want to know about.
+                Drop your email and we'll send new events, early links, and the good last-minute openings.
+                No spam. No pressure. Just the stuff you'd actually want to know about.
               </p>
             </div>
             <MailingListSignup />
