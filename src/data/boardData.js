@@ -198,12 +198,20 @@ export const CONTENT_TYPE_GUIDE = [
 
 export const VACATION_BLOCKS = [
   {
-    id: "sandy-away",
+    id: "sandy-away-fall-1",
     owner: "Sandy",
     label: "Away",
     tone: "rose",
-    start: "2026-04-01",
-    end: "2026-04-12",
+    start: "2026-09-30",
+    end: "2026-10-15",
+  },
+  {
+    id: "sandy-away-fall-2",
+    owner: "Sandy",
+    label: "Away",
+    tone: "rose",
+    start: "2026-11-11",
+    end: "2026-11-30",
   },
   {
     id: "patrice-away",
