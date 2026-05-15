@@ -17,19 +17,6 @@ export default function MailingListSignup() {
           target="_blank"
         >
           <div id="mc_embed_signup_scroll" className="space-y-3">
-            <label htmlFor="mce-FNAME" className="block text-sm font-semibold text-[#2D4A3E]">
-              Name
-            </label>
-            <input
-              type="text"
-              name="FNAME"
-              className="h-12 w-full rounded-full border border-[#2D4A3E]/14 bg-white px-5 text-base text-[#2D4A3E] outline-none transition focus:border-[#2D4A3E]/35 focus:ring-4 focus:ring-[#2D4A3E]/10"
-              id="mce-FNAME"
-              defaultValue=""
-              placeholder="Your name"
-              autoComplete="given-name"
-            />
-
             <label htmlFor="mce-EMAIL" className="block text-sm font-semibold text-[#2D4A3E]">
               Email Address
             </label>
