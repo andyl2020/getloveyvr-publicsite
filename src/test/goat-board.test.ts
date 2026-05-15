@@ -72,6 +72,7 @@ describe("shared event schedule", () => {
     const juneKaraokeFriendsEvent = boardEvents.find((event) => event.id === 6);
     const artWellnessEvent = boardEvents.find((event) => event.id === 5);
     const bakingEvent = boardEvents.find((event) => event.id === 10);
+    const julyKaraokeSinglesEvent = boardEvents.find((event) => event.id === 7);
     const hikingEvent = boardEvents.find((event) => event.id === 8);
     const hikingPreMeetEvent = boardEvents.find((event) => event.id === 15);
     const paddleBoardingEvent = boardEvents.find((event) => event.id === 9);
@@ -82,9 +83,9 @@ describe("shared event schedule", () => {
     const archivedBoardGamesEvent = boardEvents.find((event) => event.id === 11);
     const finalSinglesEvent = boardEvents.find((event) => event.id === 12);
 
-    expect(singlesSeries).toHaveLength(7);
+    expect(singlesSeries).toHaveLength(8);
     expect(totalSinglesSeries).toBe(8);
-    expect(archivedEvents.map((event) => event.id)).toEqual([4, 7, 11]);
+    expect(archivedEvents.map((event) => event.id)).toEqual([4, 11]);
     expect(firstFriendsEvent).toMatchObject({
       seriesType: "friends",
       seriesNumber: 1,
@@ -97,19 +98,26 @@ describe("shared event schedule", () => {
     });
     expect(artWellnessEvent).toMatchObject({
       seriesType: "singles",
-      seriesNumber: 4,
+      seriesNumber: 3,
       theme: "Art Wellness (ft. Art Therapist) Singles Event",
       eventDate: "2026-06-07",
     });
     expect(bakingEvent).toMatchObject({
       seriesType: "singles",
-      seriesNumber: 7,
+      seriesNumber: 4,
       theme: "Baking Singles Event",
       eventDate: "2026-06-28",
     });
-    expect(hikingEvent).toMatchObject({
+    expect(julyKaraokeSinglesEvent).toMatchObject({
       seriesType: "singles",
       seriesNumber: 5,
+      theme: "Karaoke Singles Event",
+      eventDate: "2026-07-08",
+      archived: false,
+    });
+    expect(hikingEvent).toMatchObject({
+      seriesType: "singles",
+      seriesNumber: 6,
       theme: "Hiking Singles Event",
       eventDate: "2026-07-19",
     });
@@ -121,7 +129,7 @@ describe("shared event schedule", () => {
     });
     expect(paddleBoardingEvent).toMatchObject({
       seriesType: "singles",
-      seriesNumber: 6,
+      seriesNumber: 7,
       theme: "Paddle Boarding Singles Event",
       eventDate: "2026-08-09",
     });
@@ -151,7 +159,7 @@ describe("shared event schedule", () => {
     });
     expect(archivedBoardGamesEvent).toMatchObject({
       seriesType: "singles",
-      seriesNumber: 3,
+      seriesNumber: undefined,
       theme: "Board Games + Deep Convos Singles Event",
       archived: true,
     });
