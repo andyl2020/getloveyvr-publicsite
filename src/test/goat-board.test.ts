@@ -111,13 +111,13 @@ describe("shared event schedule", () => {
     });
     expect(bakingEvent).toMatchObject({
       seriesType: "singles",
-      seriesNumber: 4,
+      seriesNumber: 7,
       theme: "Baking Singles Event",
-      eventDate: "2026-06-28",
+      eventDate: "2026-10-18",
     });
     expect(hikingEvent).toMatchObject({
       seriesType: "singles",
-      seriesNumber: 5,
+      seriesNumber: 4,
       theme: "Hiking Singles Event",
       eventDate: "2026-07-12",
     });
@@ -129,7 +129,7 @@ describe("shared event schedule", () => {
     });
     expect(paddleBoardingEvent).toMatchObject({
       seriesType: "singles",
-      seriesNumber: 6,
+      seriesNumber: 5,
       theme: "Paddle Boarding Singles Event",
       eventDate: "2026-08-09",
     });
@@ -165,7 +165,7 @@ describe("shared event schedule", () => {
     });
     expect(septemberSinglesKaraokeEvent).toMatchObject({
       seriesType: "singles",
-      seriesNumber: 7,
+      seriesNumber: 6,
       theme: "Karaoke Singles Event",
       eventDate: "2026-09-20",
     });
@@ -173,7 +173,7 @@ describe("shared event schedule", () => {
       seriesType: "singles",
       seriesNumber: 8,
       theme: "TBA Singles Event",
-      eventDate: "2026-10-11",
+      eventDate: "2026-11-15",
       tentative: true,
     });
   });
