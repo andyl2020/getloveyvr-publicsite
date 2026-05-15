@@ -632,17 +632,16 @@ const Index = () => {
       <CommunityPoll />
 
       <section id="join" className="py-20 px-4 bg-primary text-primary-foreground">
-        <div className="container max-w-5xl mx-auto">
-          <div className="grid gap-10 lg:grid-cols-[1fr_1.05fr] lg:items-center">
-            <div className="max-w-xl">
-              <h2 className="text-3xl sm:text-4xl font-heading font-bold mb-4">Ready for the next event drop?</h2>
-              <p className="text-lg opacity-90 max-w-lg">
-                Drop your email and we'll send new events, early links, and the good last-minute openings.
-                No spam. No pressure. Just the stuff you'd actually want to know about.
-              </p>
-            </div>
-            <MailingListSignup />
+        <div className="container max-w-4xl mx-auto">
+          <div className="mx-auto mb-8 max-w-2xl text-center">
+            <h2 className="text-3xl sm:text-4xl font-heading font-bold mb-4">
+              Vancouver Singles Events Email List
+            </h2>
+            <p className="text-lg opacity-90">
+              Get new event drops, early access, and last-minute openings from GetLoveYVR.
+            </p>
           </div>
+          <MailingListSignup />
           <div className="flex items-center justify-center gap-4 mt-10">
             <a
               href="https://www.instagram.com/getloveyvr"
