@@ -70,9 +70,9 @@ describe("shared event schedule", () => {
     const totalSinglesSeries = getSinglesSeriesTotal(publicEvents);
     const firstFriendsEvent = boardEvents.find((event) => event.id === 3);
     const juneKaraokeFriendsEvent = boardEvents.find((event) => event.id === 6);
+    const julyKaraokeFriendsEvent = boardEvents.find((event) => event.id === 7);
     const artWellnessEvent = boardEvents.find((event) => event.id === 5);
     const bakingEvent = boardEvents.find((event) => event.id === 10);
-    const julyKaraokeSinglesEvent = boardEvents.find((event) => event.id === 7);
     const hikingEvent = boardEvents.find((event) => event.id === 8);
     const hikingPreMeetEvent = boardEvents.find((event) => event.id === 15);
     const paddleBoardingEvent = boardEvents.find((event) => event.id === 9);
@@ -81,7 +81,8 @@ describe("shared event schedule", () => {
     const septemberKaraokeFriendsEvent = boardEvents.find((event) => event.id === 14);
     const costcoEvent = boardEvents.find((event) => event.id === 4);
     const archivedBoardGamesEvent = boardEvents.find((event) => event.id === 11);
-    const finalSinglesEvent = boardEvents.find((event) => event.id === 12);
+    const finalSinglesEvent = boardEvents.find((event) => event.id === 17);
+    const septemberSinglesKaraokeEvent = boardEvents.find((event) => event.id === 12);
 
     expect(singlesSeries).toHaveLength(8);
     expect(totalSinglesSeries).toBe(8);
@@ -96,6 +97,12 @@ describe("shared event schedule", () => {
       seriesNumber: 2,
       theme: "Karaoke S2 E3 (Friends Edition)",
     });
+    expect(julyKaraokeFriendsEvent).toMatchObject({
+      seriesType: "friends",
+      seriesNumber: 3,
+      theme: "Karaoke S2 E4 (Friends Edition)",
+      eventDate: "2026-07-08",
+    });
     expect(artWellnessEvent).toMatchObject({
       seriesType: "singles",
       seriesNumber: 3,
@@ -108,16 +115,9 @@ describe("shared event schedule", () => {
       theme: "Baking Singles Event",
       eventDate: "2026-06-28",
     });
-    expect(julyKaraokeSinglesEvent).toMatchObject({
-      seriesType: "singles",
-      seriesNumber: 5,
-      theme: "Karaoke Singles Event",
-      eventDate: "2026-07-08",
-      archived: false,
-    });
     expect(hikingEvent).toMatchObject({
       seriesType: "singles",
-      seriesNumber: 6,
+      seriesNumber: 5,
       theme: "Hiking Singles Event",
       eventDate: "2026-07-19",
     });
@@ -129,7 +129,7 @@ describe("shared event schedule", () => {
     });
     expect(paddleBoardingEvent).toMatchObject({
       seriesType: "singles",
-      seriesNumber: 7,
+      seriesNumber: 6,
       theme: "Paddle Boarding Singles Event",
       eventDate: "2026-08-09",
     });
@@ -141,14 +141,14 @@ describe("shared event schedule", () => {
     });
     expect(augustKaraokeFriendsEvent).toMatchObject({
       seriesType: "friends",
-      seriesNumber: 3,
-      theme: "Karaoke S2 E4 (Friends Edition)",
+      seriesNumber: 4,
+      theme: "Karaoke S2 E5 (Friends Edition)",
       eventDate: "2026-08-19",
     });
     expect(septemberKaraokeFriendsEvent).toMatchObject({
       seriesType: "friends",
-      seriesNumber: 4,
-      theme: "Karaoke S2 E5 (Friends Edition)",
+      seriesNumber: 5,
+      theme: "Karaoke S2 E6 (Friends Edition)",
       eventDate: "2026-09-11",
     });
     expect(costcoEvent).toMatchObject({
@@ -163,11 +163,18 @@ describe("shared event schedule", () => {
       theme: "Board Games + Deep Convos Singles Event",
       archived: true,
     });
+    expect(septemberSinglesKaraokeEvent).toMatchObject({
+      seriesType: "singles",
+      seriesNumber: 7,
+      theme: "Karaoke Singles Event",
+      eventDate: "2026-09-20",
+    });
     expect(finalSinglesEvent).toMatchObject({
       seriesType: "singles",
       seriesNumber: 8,
-      theme: "Karaoke Singles Event",
-      eventDate: "2026-09-20",
+      theme: "TBA Singles Event",
+      eventDate: "2026-10-11",
+      tentative: true,
     });
   });
 });
