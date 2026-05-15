@@ -40,7 +40,9 @@ export default function MailingListSignup() {
               />
             </div>
 
-            <p className="text-sm text-[#2D4A3E]/68">No spam. Unsubscribe anytime.</p>
+            <p className="text-sm text-[#2D4A3E]/68">
+              No spam, pinky promise 🤞. Unsubscribe anytime.
+            </p>
 
             <div id="mce-responses" className="hidden">
               <div className="response" id="mce-error-response" />
