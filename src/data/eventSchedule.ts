@@ -81,6 +81,7 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     title: "Art Wellness (ft. Art Therapist) Singles Event",
     boardTheme: "Art Wellness (ft. Art Therapist) Singles Event",
     eventDate: "2026-06-07",
+    joinUrl: "https://flocksocial.app/e/little-landscapes-an-art-wellness-workshop-e16cb5",
     emoji: "\u{1F9D8}",
     colorClass: "bg-event-painting",
     defaultOwner: "Stephy",
