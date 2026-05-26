@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type SyntheticEvent as ReactSyntheticEvent } from "react";
 import {
   Calendar as CalendarIcon,
+  CalendarPlus,
   ChevronLeft,
   ChevronRight,
   DoorOpen,
@@ -23,6 +24,7 @@ import {
   isSinglesSeriesEvent,
 } from "@/data/eventSchedule";
 import { useEventSchedule } from "@/hooks/useEventSchedule";
+import { buildGoogleCalendarUrl, hasGoogleCalendarDetails, isEventLive } from "@/lib/googleCalendar";
 import NotFound from "./NotFound";
 
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -108,10 +110,6 @@ function findEventBySlug(events: EventScheduleEntry[], eventSlug?: string) {
   }
 
   return events.find((event) => event.slug === eventSlug || event.shareSlug === eventSlug);
-}
-
-function isJoinAvailable(event: EventScheduleEntry) {
-  return Boolean(event.joinUrl && event.publicJoinEnabled !== false);
 }
 
 function getEventSharePath(event: EventScheduleEntry) {
@@ -403,7 +401,9 @@ const EventCalendar = ({
       {monthEvents.length > 0 && (
         <div className="mt-6 space-y-2">
           {monthEvents.map((event) => {
-            const joinAvailable = isJoinAvailable(event);
+            const joinAvailable = isEventLive(event);
+            const calendarAvailable = joinAvailable && hasGoogleCalendarDetails(event);
+            const googleCalendarUrl = calendarAvailable ? buildGoogleCalendarUrl(event) : null;
             const eventParts = getEventCalendarParts(event.eventDate);
 
             return (
@@ -433,11 +433,21 @@ const EventCalendar = ({
                   </div>
                 </div>
                 {joinAvailable ? (
-                  <Button size="sm" variant="outline" asChild>
-                    <a href={event.joinUrl} target="_blank" rel="noopener noreferrer">
-                      Join
-                    </a>
-                  </Button>
+                  <div className="flex flex-col gap-2 sm:flex-row sm:self-start">
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={event.joinUrl} target="_blank" rel="noopener noreferrer">
+                        Join
+                      </a>
+                    </Button>
+                    {googleCalendarUrl && (
+                      <Button size="sm" variant="secondary" asChild className="border border-border bg-secondary hover:bg-secondary/80">
+                        <a href={googleCalendarUrl} target="_blank" rel="noopener noreferrer">
+                          <CalendarPlus className="mr-2 h-4 w-4" />
+                          Add to Calendar
+                        </a>
+                      </Button>
+                    )}
+                  </div>
                 ) : (
                   <Button
                     size="sm"

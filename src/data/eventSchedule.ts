@@ -15,6 +15,16 @@ export interface EventScheduleEntry {
   tentative?: boolean;
   archived?: boolean;
   defaultOwner?: string;
+  calendar?: EventCalendarMetadata;
+}
+
+export interface EventCalendarMetadata {
+  title?: string;
+  startsAt?: string;
+  endsAt?: string;
+  timezone?: string;
+  location?: string;
+  description?: string;
 }
 
 export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
@@ -81,10 +91,20 @@ export const DEFAULT_EVENT_SCHEDULE: EventScheduleEntry[] = [
     title: "Art Wellness (ft. Art Therapist) Singles Event",
     boardTheme: "Art Wellness (ft. Art Therapist) Singles Event",
     eventDate: "2026-06-07",
+    time: "1:00 PM - 3:30 PM",
     joinUrl: "https://flocksocial.app/e/little-landscapes-an-art-wellness-workshop-e16cb5",
     emoji: "\u{1F9D8}",
     colorClass: "bg-event-painting",
     defaultOwner: "Stephy",
+    calendar: {
+      title: "Little Landscapes: A Singles Art Wellness Workshop",
+      startsAt: "2026-06-07T13:00:00-07:00",
+      endsAt: "2026-06-07T15:30:00-07:00",
+      timezone: "America/Vancouver",
+      location: "Central Park Picnic Areas (Burnaby)",
+      description:
+        "Join us for a grounded outdoor singles-event gathering where you'll collect what catches your eye on the grass or along the shore and arrange it into a small \"held world.\" Led by an Art therapist.\n\nThis experience is designed with structured sessions, guided sharing, and plenty of opportunities to get to know others in a natural, low-pressure way. Instead of relying only on small talk, participants will connect through art-making, observation, and non-verbal conversation. At the end, a matching activity will help you meet someone you may want to continue connecting with after the event.",
+    },
   },
   {
     id: 6,
@@ -254,8 +274,38 @@ function normalizeOptionalString(value: unknown) {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
 }
 
+function normalizeOptionalIsoDateTime(value: unknown, fallback?: string) {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    return fallback;
+  }
+
+  const trimmed = value.trim();
+  return Number.isNaN(Date.parse(trimmed)) ? fallback : trimmed;
+}
+
 function normalizeSeriesType(value: unknown, fallback: EventScheduleEntry["seriesType"]) {
   return value === "singles" || value === "friends" ? value : fallback;
+}
+
+function normalizeCalendarMetadata(
+  value: unknown,
+  fallback?: EventCalendarMetadata,
+): EventCalendarMetadata | undefined {
+  if (!value || typeof value !== "object") {
+    return fallback;
+  }
+
+  const raw = value as Partial<EventCalendarMetadata>;
+  const nextValue = {
+    title: normalizeOptionalString(raw.title) ?? fallback?.title,
+    startsAt: normalizeOptionalIsoDateTime(raw.startsAt, fallback?.startsAt),
+    endsAt: normalizeOptionalIsoDateTime(raw.endsAt, fallback?.endsAt),
+    timezone: normalizeOptionalString(raw.timezone) ?? fallback?.timezone,
+    location: normalizeOptionalString(raw.location) ?? fallback?.location,
+    description: normalizeOptionalString(raw.description) ?? fallback?.description,
+  };
+
+  return Object.values(nextValue).some(Boolean) ? nextValue : fallback;
 }
 
 export function normalizeIsoDate(value: unknown, fallback: string) {
@@ -308,6 +358,7 @@ function normalizeEntry(candidate: unknown, fallback: EventScheduleEntry): Event
     archived:
       raw.archived === undefined ? fallback.archived : normalizeBoolean(raw.archived, false),
     defaultOwner: normalizeOptionalString(raw.defaultOwner) ?? fallback.defaultOwner,
+    calendar: normalizeCalendarMetadata(raw.calendar, fallback.calendar),
   };
 }
 
