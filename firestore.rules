@@ -12,6 +12,7 @@ service cloud.firestore {
 
     function isValidPollOption() {
       return request.resource.data.option in [
+        "dating_events_guide",
         "ages_35_45",
         "ages_45_plus",
         "ikea",

@@ -6,6 +6,12 @@ export const MORE_FRIEND_EVENTS_OPTION_ID = "more_friend_events";
 
 export const POLL_OPTIONS = [
   {
+    id: "dating_events_guide",
+    emoji: "🗺️",
+    label: "Build a section with all Vancouver dating events",
+    description: "",
+  },
+  {
     id: "ages_35_45",
     emoji: "👥",
     label: "A Series for Ages 35–45",

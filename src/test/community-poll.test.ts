@@ -17,6 +17,7 @@ describe("community poll helpers", () => {
     ]);
 
     expect(total).toBe(4);
+    expect(counts.dating_events_guide).toBe(0);
     expect(counts.ikea).toBe(2);
     expect(counts[BRING_BACK_OPTION_ID]).toBe(1);
     expect(counts.ages_45_plus).toBe(1);
