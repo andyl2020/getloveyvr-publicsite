@@ -440,10 +440,20 @@ const EventCalendar = ({
                       </a>
                     </Button>
                     {googleCalendarUrl && (
-                      <Button size="sm" variant="secondary" asChild className="border border-border bg-secondary hover:bg-secondary/80">
-                        <a href={googleCalendarUrl} target="_blank" rel="noopener noreferrer">
-                          <CalendarPlus className="mr-2 h-4 w-4" />
-                          Add to Calendar
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        asChild
+                        className="h-9 w-9 border border-border bg-secondary hover:bg-secondary/80"
+                      >
+                        <a
+                          href={googleCalendarUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Add ${event.title} to Google Calendar`}
+                          title="Add to Google Calendar"
+                        >
+                          <CalendarPlus className="h-4 w-4" />
                         </a>
                       </Button>
                     )}
