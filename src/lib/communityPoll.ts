@@ -8,7 +8,7 @@ export const POLL_OPTIONS = [
   {
     id: "dating_events_guide",
     emoji: "🗺️",
-    label: "Build a section with all Vancouver dating events",
+    label: "Build something to show all dating events in Vancouver",
     description: "",
   },
   {
