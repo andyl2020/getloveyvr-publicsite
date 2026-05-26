@@ -442,9 +442,9 @@ const EventCalendar = ({
                     {googleCalendarUrl && (
                       <Button
                         size="icon"
-                        variant="secondary"
+                        variant="outline"
                         asChild
-                        className="h-9 w-9 border border-border bg-secondary hover:bg-secondary/80"
+                        className="h-9 w-9"
                       >
                         <a
                           href={googleCalendarUrl}
