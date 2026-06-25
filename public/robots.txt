@@ -1,16 +1,26 @@
 User-agent: Googlebot
+Disallow: /AsianEvents
+Disallow: /asianevents
 Allow: /
 
 User-agent: Bingbot
+Disallow: /AsianEvents
+Disallow: /asianevents
 Allow: /
 
 User-agent: Twitterbot
+Disallow: /AsianEvents
+Disallow: /asianevents
 Allow: /
 
 User-agent: facebookexternalhit
+Disallow: /AsianEvents
+Disallow: /asianevents
 Allow: /
 
 User-agent: *
+Disallow: /AsianEvents
+Disallow: /asianevents
 Allow: /
 
 Sitemap: https://getloveyvr.ca/sitemap.xml
