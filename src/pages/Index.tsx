@@ -401,14 +401,13 @@ const EventCalendar = ({
       {monthEvents.length > 0 && (
         <div className="mt-6 space-y-2">
           {monthEvents.map((event) => {
-            const joinAvailable = isEventLive(event);
+            const isCanceledSinglesEvent =
+              event.seriesType === "singles" && !event.title.toLowerCase().includes("karaoke");
+            const joinAvailable = isEventLive(event) && !isCanceledSinglesEvent;
             const calendarAvailable = joinAvailable && hasGoogleCalendarDetails(event);
             const googleCalendarUrl = calendarAvailable ? buildGoogleCalendarUrl(event) : null;
             const eventParts = getEventCalendarParts(event.eventDate);
-            const unavailableLabel =
-              event.eventDate === "2026-07-11" || event.eventDate === "2026-07-12"
-                ? "Canceled"
-                : "TBD";
+            const unavailableLabel = isCanceledSinglesEvent ? "Canceled" : "TBD";
 
             return (
               <div
