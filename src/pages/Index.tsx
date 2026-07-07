@@ -405,6 +405,10 @@ const EventCalendar = ({
             const calendarAvailable = joinAvailable && hasGoogleCalendarDetails(event);
             const googleCalendarUrl = calendarAvailable ? buildGoogleCalendarUrl(event) : null;
             const eventParts = getEventCalendarParts(event.eventDate);
+            const unavailableLabel =
+              event.eventDate === "2026-07-11" || event.eventDate === "2026-07-12"
+                ? "Canceled"
+                : "TBD";
 
             return (
               <div
@@ -465,7 +469,7 @@ const EventCalendar = ({
                     disabled
                     className="cursor-not-allowed bg-muted text-muted-foreground disabled:opacity-100"
                   >
-                    TBD
+                    {unavailableLabel}
                   </Button>
                 )}
               </div>
