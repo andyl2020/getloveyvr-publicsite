@@ -402,11 +402,13 @@ const EventCalendar = ({
         <div className="mt-6 space-y-2">
           {monthEvents.map((event) => {
             const isKaraokeEvent = event.title.toLowerCase().includes("karaoke");
+            const isFutureEvent = event.eventDate >= "2026-07-07";
             const isNextUpcomingKaraokeEvent =
               isKaraokeEvent && event.eventDate === "2026-07-22";
             const isCanceledEvent =
-              (event.seriesType === "singles" && !isNextUpcomingKaraokeEvent) ||
-              (isKaraokeEvent && !isNextUpcomingKaraokeEvent);
+              isFutureEvent &&
+              ((event.seriesType === "singles" && !isNextUpcomingKaraokeEvent) ||
+                (isKaraokeEvent && !isNextUpcomingKaraokeEvent));
             const joinAvailable = isEventLive(event) && !isCanceledEvent;
             const calendarAvailable = joinAvailable && hasGoogleCalendarDetails(event);
             const googleCalendarUrl = calendarAvailable ? buildGoogleCalendarUrl(event) : null;
